@@ -417,7 +417,7 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 	sub lbheader 
 	{
 		 # Create Help page
-	  $helplink = "http://www.loxwiki.eu:80/display/LOXBERRY/Miniserverbackup";
+	  $helplink = "http://www.loxwiki.eu/display/LOXBERRY/BLE-Scanner";
 	  open(F,"$installfolder/templates/plugins/$psubfolder/$lang/help.html") || die "Missing template plugins/$psubfolder/$lang/help.html";
 	    @help = <F>;
 	    foreach (@help)
