@@ -1,8 +1,8 @@
 <?php
 // LoxBerry BLE Scanner Plugin 
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 1.3
-// 28.08.2016 20:38:35
+// Version 1.4
+// 28.08.2016 22:28:10
 
 // Configuration parameters
 $python           ="/usr/bin/python";
@@ -21,6 +21,10 @@ $error            =array();
 // Enable logging
 ini_set("error_log", $logfile);
 ini_set("log_errors", 1);
+
+// Defaults for inexistent variables
+if (!isset($_REQUEST["mode"])) {$_REQUEST["mode"] = 'normal';}
+if (!isset($_SERVER["HTTP_REFERER"])) {$_SERVER["HTTP_REFERER"] = 'direct';}
 
 // Read log and exit
 if ($_REQUEST["mode"] == "download_logfile")
