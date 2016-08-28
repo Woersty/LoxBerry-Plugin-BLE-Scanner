@@ -1,0 +1,41 @@
+<div id='BLETAG<!--$tag_mac-->'>
+	<div id='wrap<!--$tag_mac-->'>
+		 <table>
+		 	<tr>
+		 		<td>
+		 			<a onclick="delete_tag('<!--$tag_mac-->',$('#comment<!--$tag_mac-->').val());" href='javascript:void(0);'><img src='/plugins/<!--$psubfolder-->/ico_delete.png' border='0' width='48' height='48'></a>
+		 		</td>
+		 		<td>
+		 			<img id='<!--$tag_mac-->found' src='/plugins/<!--$psubfolder-->/ico_online0.svg' border='0' width='48' height='48'>
+		 		</td>
+		 		<td>
+	 				<input id='<!--$tag_mac-->'        name='<!--$tag_mac-->' 			 type='checkbox' <!--$tag_use--> mac='<!--$tag_mac-->'>
+		 				<div class='ui-checkbox'>
+		 					<label for='<!--$tag_mac-->' class='ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off'>
+		 						<table>
+		 							<tr>
+		 								<td>
+		 									<div data-validation='length alphanumeric' data-validation-length='1-32' data-validation-allowing='-_' class='editable' contenteditable='true' style='width:300px; padding:2px; border: 1px solid #7e7e7e; border-radius: 5px; color: #6DAC20; font-weight: bold; background-color: #e9e9e9; ' id='div<!--$tag_mac-->'><!--$tag_comment--></div>
+		 								</td>
+		 								<td>
+		 									<small>
+		 										<font color='#6DAC20' face='courier'>
+		 											[<!--$tag_mac-->]
+		 										</font>
+		 									</small>
+		 								</td>
+		 							</tr>
+		 						</table>
+		 					</label>
+						</div>
+		 			<input name='comment<!--$tag_mac-->' id='comment<!--$tag_mac-->' type='hidden' value='<!--$tag_comment-->'>
+ 					<input id='<!--$tag_mac-->Hidden'  name='<!--$tag_mac-->' 			 type='hidden'     value='<!--$tag_use_hidden-->'>
+		 		</td>
+	 			<td>
+	 				<div id='<!--$tag_mac-->msdiv'><table><tr><!--$miniserver_to_use--></tr></table></div>
+	 			</td>
+		 	</tr>
+		</table>
+ 		 <script>tag_scripting('<!--$tag_mac-->');</script>
+	</div>
+</div>
