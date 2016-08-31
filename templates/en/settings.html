@@ -47,13 +47,13 @@
 																	}
 																});
 															}
-																													function reset_rssi()
+														function reset_rssi()
 														{
 															$('.rssitag').each(function(i, obj) 
 															{
 																$(obj).attr('src', '/plugins/<!--$psubfolder-->/coverage_none.svg');
-																$(obj).prop('alt', 'Kein Signal');
-																$(obj).prop('title', 'Kein Signal');
+																$(obj).prop('alt', 'No signal');
+																$(obj).prop('title', 'No signal');
 															});
 															$('.ico_online').each(function(i, obj) 
 															{
@@ -65,22 +65,22 @@
 															if (rssi < -80) 
 															{
 																level = 'weak';
-																str_level = 'Schwaches Signal ('+rssi+' dB)';
+																str_level = 'Weak signal ('+rssi+' dB)';
 															}
 															else if (rssi >= -80 && rssi < -50 ) 
 															{
 																level = 'medium';
-																str_level = 'Gutes Signal ('+rssi+' dB)';
+																str_level = 'Good signal ('+rssi+' dB)';
 															}
 															else if (rssi >= -50 ) 
 															{
 																level = 'strong';
-																str_level = 'Starkes Signal ('+rssi+' dB)';
+																str_level = 'Strong signal ('+rssi+' dB)';
 															}
 															else
 															{
 																level = 'none';
-																str_level = 'Kein Signal';
+																str_level = 'No Signal';
 															}
 															$('#rssi'+valueID).attr('src', '/plugins/<!--$psubfolder-->/coverage_'+level+'.svg');
 															$('#rssi'+valueID).prop('alt', str_level);
@@ -282,7 +282,7 @@
 																																	<td>																																																																																																																																																																																	\
 																																		<small>                                                                                                                                                                                                                                                                                                                                                             \
 																																			<font color=\'#1166FF\' face=\'courier\'>                                                                                                                                                                                                                                                                                                                					\
-																																				<img tagid=\''+value['id']+'\' class=\'rssitag\' id=\'rssi'+value['id']+'\' title=\'Kein Signal\' alt=\'Kein Signal\' width=\'32px\' height=\'32px\'src=\'/plugins/<!--$psubfolder-->/signal.svg\' class=\'svg-inject iconic-signal-none\' />                                                                                                                                                                                                                   \
+																																				<img tagid=\''+value['id']+'\' class=\'rssitag\' id=\'rssi'+value['id']+'\' title=\'No signal\' alt=\'No signal\' width=\'32px\' height=\'32px\'src=\'/plugins/<!--$psubfolder-->/signal.svg\' class=\'svg-inject iconic-signal-none\' />                                                                                                                                                                                                                   \
 																																			</font>                                                                                                                                                                                                                                                                                                                                                           \
 																																		</small>                                                                                                                                                                                                                                                                                                                                                            \
 																																	</td>                                                                                                                                                                                                                                                                                                                                                                 \
