@@ -1,8 +1,8 @@
 <?php
 // LoxBerry BLE Scanner Plugin 
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 1.4
-// 28.08.2016 22:28:10
+// Version 1.5
+// 30.08.2016 18:47:54
 
 // Configuration parameters
 $python           ="/usr/bin/python";
@@ -69,7 +69,7 @@ function convert_tag_format ($value)
 header('Content-Type: application/json; charset=utf-8');
 
 // Execute BLE-Scan
-$last_line =  exec("$sudo $python $ble_scan 2>&1",$tags_found, $return_code);
+$last_line =  exec("$sudo $python $ble_scan 2>&1",$tags_scanned, $return_code);
 if ($return_code) 
 {	
 	error_log( date('Y-m-d H:i:s ')."Error reading tags! Reason:".$last_line." [".$_SERVER["HTTP_REFERER"]."]\n", 3, $logfile);
@@ -77,9 +77,18 @@ if ($return_code)
 }
 
 // Tag-MACs all uppercase and sort
-$tags_found = array_map('strtoupper', array_unique($tags_found,SORT_STRING));
+$tags_scanned = array_map('strtoupper', array_unique($tags_scanned,SORT_STRING));
 // Tag-MACs add prefix
-$tags_found = array_map('convert_tag_format', $tags_found);
+$tags_scanned= array_map('convert_tag_format', $tags_scanned);
+$tags_found=[];
+$iterator=0;
+foreach ($tags_scanned as $tags_scanned_line)
+{
+		$mac_rssi  = explode(";",$tags_scanned_line);
+		$tags_found[$iterator]['mac']  = $mac_rssi[0];
+		$tags_found[$iterator]['rssi'] = $mac_rssi[1];
+		$iterator++;
+}
 
 ############### Main ##############
 
@@ -89,13 +98,14 @@ if ($_REQUEST["mode"] == "scan")
 	while(list($tags_found_tag_key,$tags_found_tag_data) = each($tags_found))
   {
   	// If Tag is not already in tags_known-Array add it
-  	if (!in_array_r($tags_found_tag_data,$tags_known))
+  	if (!in_array_r($tags_found_tag_data['mac'],$tags_known))
   	{
   		// Add Tag
   		$current_tag                              	= count($tags_known);
-	  	$tags_known["TAG".$current_tag]['id']     	= $tags_found_tag_data;
+	  	$tags_known["TAG".$current_tag]['id']     	= $tags_found_tag_data['mac'];
 	  	$tags_known["TAG".$current_tag]['comment'] 	= '-';
 	  	$tags_known["TAG".$current_tag]['found']   	= 1;
+	  	$tags_known["TAG".$current_tag]['rssi']   	= $tags_found_tag_data['rssi'];
 		}
 	}
 	// Return list of all online arrays 

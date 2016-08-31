@@ -47,6 +47,45 @@
 																}
 															});
 														}
+														function reset_rssi()
+														{
+															$('.rssitag').each(function(i, obj) 
+															{
+																$(obj).attr('src', '/plugins/<!--$psubfolder-->/coverage_none.svg');
+																$(obj).prop('alt', 'Kein Signal');
+																$(obj).prop('title', 'Kein Signal');
+															});
+															$('.ico_online').each(function(i, obj) 
+															{
+																$(obj).attr('src', '/plugins/<!--$psubfolder-->/ico_online0.svg');
+															});
+														}
+														function tag_rssi(valueID,rssi)
+														{
+															if (rssi < -80) 
+															{
+																level = 'weak';
+																str_level = 'Schwaches Signal ('+rssi+' dB)';
+															}
+															else if (rssi >= -80 && rssi < -50 ) 
+															{
+																level = 'medium';
+																str_level = 'Gutes Signal ('+rssi+' dB)';
+															}
+															else if (rssi >= -50 ) 
+															{
+																level = 'strong';
+																str_level = 'Starkes Signal ('+rssi+' dB)';
+															}
+															else
+															{
+																level = 'none';
+																str_level = 'Kein Signal';
+															}
+															$('#rssi'+valueID).attr('src', '/plugins/<!--$psubfolder-->/coverage_'+level+'.svg');
+															$('#rssi'+valueID).prop('alt', str_level);
+															$('#rssi'+valueID).prop('title', str_level);
+														}
 														function tag_scripting(valueID)
 														{
 															var new_tag_inputtext	='Hier Namen eingeben';
@@ -198,7 +237,7 @@
 													<table>
 														<tr>
 															<td>
-																<a style="width:400px;" id="btnscan" data-icon="search" data-role="button" data-mini="true" onclick="var data=''; $('#btnscan').prop('innerHTML',svg_loader); $.getJSON('/plugins/<!--$psubfolder-->/?mode=scan',
+																<a style="width:400px;" id="btnscan" data-icon="search" data-role="button" data-mini="true" onclick="reset_rssi(); var data=''; $('#btnscan').prop('innerHTML',svg_loader); $.getJSON('/plugins/<!--$psubfolder-->/?mode=scan',
 																function(data)
 																{
 																	if(typeof data['error'] !== 'undefined')
@@ -222,7 +261,7 @@
 																											<img style=\' opacity: 0.3; filter: alpha(opacity=30);\' src=\'/plugins/<!--$psubfolder-->/ico_delete.png\' border=\'0\' width=\'48\' height=\'48\'></a>                                                                                                                                                                                                               					\
 																										</td>                                                                                                                                                                                                                                                                                                                                                                             \
 																										<td>    																																																																																																																																																																																					\
-																											<img id=\''+value['id']+'found\' src=\'/plugins/<!--$psubfolder-->/ico_online'+value['found']+'.svg\' border=\'0\' width=\'48\' height=\'48\'>                                                                                                                                                                                                               										\
+																											<img class=\'ico_online\' id=\''+value['id']+'found\' src=\'/plugins/<!--$psubfolder-->/ico_online'+value['found']+'.svg\' border=\'0\' width=\'48\' height=\'48\'>                                                                                                                                                                                                               										\
 																										</td>                                                                                                                                                                                                                                                                                                                                                                             \
 																										<td>                                                                                                                                                                                                                                                                                                                                                                              \
 																											<input style=\'display:none\' id=\''+value['id']+'\'        name=\''+value['id']+'\' 			 type=\'checkbox\' data-cacheval=\'false\' unchecked mac=\''+value['id']+'\'>                                                                                                                                                                                                         \
@@ -235,8 +274,15 @@
 																																</td>                                                                                                                                                                                                                                                                                                                                                                 \
 																																<td>                                                                                                                                                                                                                                                                                                                                                                  \
 																																	<small>                                                                                                                                                                                                                                                                                                                                                             \
-																																		<font color=\'#1166FF\' face=\'courier\'>                                                                                                                                                                                                                                                                                                                         \
+																																		<font color=\'#1166FF\' face=\'courier\'>                                                                                                                                                                                                                                                                                                                					\
 																																			['+value['id']+']                                                                                                                                                                                                                                                                                                                                               \
+																																		</font>                                                                                                                                                                                                                                                                                                                                                           \
+																																	</small>                                                                                                                                                                                                                                                                                                                                                            \
+																																</td>                                                                                                                                                                                                                                                                                                                                                                 \
+																																<td>																																																																																																																																																																																	\
+																																	<small>                                                                                                                                                                                                                                                                                                                                                             \
+																																		<font color=\'#1166FF\' face=\'courier\'>                                                                                                                                                                                                                                                                                                                					\
+																																			<img tagid=\''+value['id']+'\' class=\'rssitag\' id=\'rssi'+value['id']+'\' title=\'Kein Signal\' alt=\'Kein Signal\' width=\'32px\' height=\'32px\'src=\'/plugins/<!--$psubfolder-->/signal.svg\' class=\'svg-inject iconic-signal-none\' />                                                                                                                                                                                                                   \
 																																		</font>                                                                                                                                                                                                                                                                                                                                                           \
 																																	</small>                                                                                                                                                                                                                                                                                                                                                            \
 																																</td>                                                                                                                                                                                                                                                                                                                                                                 \
@@ -256,10 +302,12 @@
 																						</div>').appendTo($('#tags'));
 																						$('#'+value['id']).prop('visibility','hidden');
 																						tag_scripting(value['id']);
+																						tag_rssi(value['id'],value['rssi']);
 																			}
 																			else
 																			{
 																				$('#'+value['id']+'found').attr('src', '/plugins/<!--$psubfolder-->/ico_online'+value['found']+'.svg');
+																				tag_rssi(value['id'],value['rssi']);
 																			}
 																		});
 																		if (at_least_one == 0)

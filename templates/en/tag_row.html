@@ -6,7 +6,7 @@
 		 			<a onclick="delete_tag('<!--$tag_mac-->',$('#comment<!--$tag_mac-->').val());" href='javascript:void(0);'><img src='/plugins/<!--$psubfolder-->/ico_delete.png' border='0' width='48' height='48'></a>
 		 		</td>
 		 		<td>
-		 			<img id='<!--$tag_mac-->found' src='/plugins/<!--$psubfolder-->/ico_online0.svg' border='0' width='48' height='48'>
+		 			<img class='ico_online' id='<!--$tag_mac-->found' src='/plugins/<!--$psubfolder-->/ico_online0.svg' border='0' width='48' height='48'>
 		 		</td>
 		 		<td>
 	 				<input id='<!--$tag_mac-->'        name='<!--$tag_mac-->' 			 type='checkbox' <!--$tag_use--> mac='<!--$tag_mac-->'>
@@ -24,6 +24,13 @@
 		 										</font>
 		 									</small>
 		 								</td>
+		 								<td>
+		 									<small>
+		 										<font color='#6DAC20' face='courier'>
+			 										<img tagid='<!--$tag_mac-->' class='rssitag' id='rssi<!--$tag_mac-->' title='Kein Signal' alt='Kein Signal' width='32px' height='32px' src='/plugins/<!--$psubfolder-->/coverage_none.svg' />
+		 										</font>
+		 								  <small>
+		 								</td>
 		 							</tr>
 		 						</table>
 		 					</label>
@@ -36,6 +43,6 @@
 	 			</td>
 		 	</tr>
 		</table>
- 		 <script>tag_scripting('<!--$tag_mac-->');</script>
+ 		 <script>tag_scripting('<!--$tag_mac-->','');</script>
 	</div>
 </div>
