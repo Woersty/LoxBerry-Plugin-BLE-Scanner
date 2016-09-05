@@ -1,1 +1,4 @@
-python bluez python-bluez
+python
+bluez
+python-bluez
+pi-bluetooth
