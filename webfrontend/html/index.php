@@ -1,14 +1,11 @@
 <?php
 // LoxBerry BLE Scanner Plugin 
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 1.5
-// 30.08.2016 18:47:54
+// Version 1.7
+// 09.09.2016 07:01:55
 
 // Configuration parameters
-$python           ="/usr/bin/python";
-$sudo             ="/usr/bin/sudo";
 $psubdir          =array_pop(array_filter(explode('/',pathinfo($_SERVER["SCRIPT_FILENAME"],PATHINFO_DIRNAME))));
-$ble_scan         ="../../../cgi/plugins/$psubdir/bin/blescan.py";
 $plugin_cfg_file 	="../../../../config/plugins/$psubdir/ble_scanner.cfg";
 $general_cfg_file ="../../../../config/system/general.cfg";
 $logfile 					="../../../../log/plugins/$psubdir/BLE-Scanner.log";
@@ -17,6 +14,8 @@ $tag_prefix       ="BLE_";
 $json_return      =array();
 $tags_known       =array();
 $error            =array();
+$daemon_addr 			="127.0.0.1";
+$daemon_port 			="12345";
 
 // Enable logging
 ini_set("error_log", $logfile);
@@ -69,15 +68,29 @@ function convert_tag_format ($value)
 header('Content-Type: application/json; charset=utf-8');
 
 // Execute BLE-Scan
-$last_line =  exec("$sudo $python $ble_scan 2>&1",$tags_scanned, $return_code);
-if ($return_code) 
-{	
-	error_log( date('Y-m-d H:i:s ')."Error reading tags! Reason:".$last_line." [".$_SERVER["HTTP_REFERER"]."]\n", 3, $logfile);
-	die(json_encode(array('error'=>"Error reading tags",'result'=>"$last_line"))); 
+$client = stream_socket_client("tcp://$daemon_addr:$daemon_port", $errno, $errorMessage);
+if ($client === false) 
+{
+	error_log( date('Y-m-d H:i:s ')."Error reading tags from Daemon at tcp://$daemon_addr:$daemon_port! Reason:".$errorMessage."\n", 3, $logfile);
+	die(json_encode(array('error'=>"Error reading tags from Daemon tcp://$daemon_addr:$daemon_port",'result'=>"$errorMessage"))); 
+}
+else
+{
+	fwrite($client, "GET TAGS\n");
+	$tags_scanned = json_decode (stream_get_contents($client),true);
+	fclose($client);
+}
+
+// If result contain error, abort
+if (isset($tags_scanned['error']))
+{
+	error_log( date('Y-m-d H:i:s ').$tags_scanned['error']." ".$tags_scanned['result'], 3, $logfile);
+	die(json_encode($tags_scanned)); 
 }
 
 // Tag-MACs all uppercase and sort
 $tags_scanned = array_map('strtoupper', array_unique($tags_scanned,SORT_STRING));
+
 // Tag-MACs add prefix
 $tags_scanned= array_map('convert_tag_format', $tags_scanned);
 $tags_found=[];
@@ -89,7 +102,6 @@ foreach ($tags_scanned as $tags_scanned_line)
 		$tags_found[$iterator]['rssi'] = $mac_rssi[1];
 		$iterator++;
 }
-
 ############### Main ##############
 
 if ($_REQUEST["mode"] == "scan")

@@ -1,0 +1,86 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          BLE-Scanner
+# Required-Start:    $remote_fs $syslog $network 
+# Required-Stop:     $remote_fs $syslog $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: This file starts the Loxberry BLE-Scanner Plugin Daemon.
+# Description:       This file starts the Loxberry BLE-Scanner Plugin Daemon.
+### END INIT INFO
+
+PATH="/sbin:/bin:/usr/sbin:/usr/bin:/opt/loxberry/bin:/opt/loxberry/sbin"
+
+. /lib/lsb/init-functions
+
+### END INIT INFO
+
+case "${1:-''}" in
+  'start')
+				output=$( pgrep -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/BLE-Scanner/bin/daemon.php" )
+				if [ $? -eq 1 ] 
+				then
+	        # Start daemon
+	        log_action_msg "Try to start BLE-Scanner daemon"
+	        # Now start the daemon
+						if [ -x /bin/hciconfig ]
+						then
+							/bin/hciconfig hci0 up
+							if [ $? -eq 1 ] 
+							then
+			          log_failure_msg "Error during start of bluetooth interface hci0 - please check"
+							else
+								if [ -x /usr/bin/php ]
+								then
+				        	if [ -x /usr/bin/python ]
+				          then
+				            output=$( /usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/BLE-Scanner/bin/daemon.php >/dev/null & )
+										output=$( pgrep -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/BLE-Scanner/bin/daemon.php" )
+										if [ $? -eq 1 ] 
+										then
+						          log_failure_msg "BLE-Scanner Daemon NOT started" 
+										else
+						          log_daemon_msg "BLE-Scanner Daemon started" "OK"
+						          log_end_msg 0
+										fi
+				           else
+				            log_failure_msg "Python not found"
+				           fi
+								else
+				          log_failure_msg "PHP not found"
+								fi
+							fi
+						else
+							log_failure_msg "Starting Bluetooth interface using 'hciconfig' failed"
+						fi
+				else
+	        log_failure_msg "Already running with PID `echo -n $output` - please use stop first"
+				fi
+        ;;
+
+  'stop')
+				pkill -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/BLE-Scanner/bin/daemon.php"
+				if [ $? -eq 1 ] 
+				then
+					# Exit with Status 1
+          log_failure_msg "BLE-Scanner daemon not running"
+				else
+          log_daemon_msg "BLE-Scanner daemon stopped" "OK"
+        	log_end_msg 0
+				fi
+        ;;
+
+  'status')
+				output=$( pgrep -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/BLE-Scanner/bin/daemon.php" )
+				if [ $? -eq 1 ] 
+				then
+          log_action_msg "Not running"
+				else
+	        log_action_msg "Running with PID `echo -n $output`"
+				fi
+        ;;
+  *)
+        echo "Usage: $SELF start|stop|status"
+        exit 1
+        ;;
+esac

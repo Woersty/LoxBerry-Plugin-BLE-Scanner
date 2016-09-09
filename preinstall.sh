@@ -25,24 +25,5 @@
 #ARGV3=$3 # Third argument is Plugin installation folder
 #ARGV4=$4 # Forth argument is Plugin version
 
-echo "<INFO> Check for sudoers entry for python"
-/usr/bin/sudo grep "loxberry ALL = NOPASSWD: /usr/bin/python" /etc/sudoers
-if [ $? -eq 1 ] 
-then
-  echo "<INFO> Adding sudoers entry for python"
-  /usr/bin/sudo sh -c "echo \"\" >> /etc/sudoers" 
-  /usr/bin/sudo sh -c "echo \"loxberry ALL = NOPASSWD: /usr/bin/python\" >> /etc/sudoers" 
-	if [ $? -eq 1 ] 
-	then
-		# Exit with Status 1
-		echo "<FAIL> Error during sudoers modification for python"
-		exit 1
-	else
-		echo "<OK> Successful sudoers modification for python"
-	fi
-else
-  echo "<INFO> sudoers entry for python exists"
-fi
-
 # Exit with Status 0
 exit 0
