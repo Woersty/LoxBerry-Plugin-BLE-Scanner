@@ -17,7 +17,7 @@ PATH="/sbin:/bin:/usr/sbin:/usr/bin:/opt/loxberry/bin:/opt/loxberry/sbin"
 
 case "${1:-''}" in
   'start')
-				output=$( pgrep -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/BLE-Scanner/bin/daemon.php" )
+				output=$( pgrep -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php" )
 				if [ $? -eq 1 ] 
 				then
 	        # Start daemon
@@ -34,8 +34,8 @@ case "${1:-''}" in
 								then
 				        	if [ -x /usr/bin/python ]
 				          then
-				            output=$( /usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/BLE-Scanner/bin/daemon.php >/dev/null & )
-										output=$( pgrep -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/BLE-Scanner/bin/daemon.php" )
+				            output=$( /usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php >/dev/null 2>&1 & )
+										output=$( pgrep -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php" )
 										if [ $? -eq 1 ] 
 										then
 						          log_failure_msg "BLE-Scanner Daemon NOT started" 
@@ -59,7 +59,7 @@ case "${1:-''}" in
         ;;
 
   'stop')
-				pkill -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/BLE-Scanner/bin/daemon.php"
+				pkill -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php"
 				if [ $? -eq 1 ] 
 				then
 					# Exit with Status 1
@@ -71,7 +71,7 @@ case "${1:-''}" in
         ;;
 
   'status')
-				output=$( pgrep -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/BLE-Scanner/bin/daemon.php" )
+				output=$( pgrep -f "/usr/bin/php -f /opt/loxberry/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php" )
 				if [ $? -eq 1 ] 
 				then
           log_action_msg "Not running"
