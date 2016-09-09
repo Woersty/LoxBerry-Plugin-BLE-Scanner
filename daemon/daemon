@@ -9,7 +9,8 @@
 # Description:       This file starts the Loxberry BLE-Scanner Plugin Daemon.
 ### END INIT INFO
 
-PATH="/sbin:/bin:/usr/sbin:/usr/bin:REPLACEBYBASEFOLDER/bin:REPLACEBYBASEFOLDER/sbin"
+PATH="/sbin:/bin:/usr/sbin:/usr/bin:REPLACEBYBASEFOLDER/bin"
+PATH=$PATH.":REPLACEBYBASEFOLDER/sbin"
 
 . /lib/lsb/init-functions
 
