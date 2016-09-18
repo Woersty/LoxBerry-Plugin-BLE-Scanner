@@ -1,8 +1,8 @@
 <?php
 // LoxBerry BLE Scanner Plugin Daemon
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 1.1
-// 09.09.2016 07:02:08
+// Version 1.2
+// 18.09.2016 21:14:03
 
 // Configuration
 $ble_scan         = dirname(__FILE__)."/blescan.py";
@@ -40,7 +40,7 @@ for (;;)
 		{
 				$client_request     = stream_get_line($client, 1024, "\n");
 				// Read TAGS
-				if ($client_request == "GET TAGS")
+				if (substr($client_request,0,8) == "GET TAGS")
 				{
 					$last_line =  exec("$hci_cfg $hci_dev 2>&1",$hci_result, $return_code);
 					if ($return_code)
@@ -73,7 +73,7 @@ for (;;)
 					}
 				}
 				// Keepalive - just send date
-				else if ($client_request == "KEEPALIVE")
+				else if (substr($client_request,0,9) == "KEEPALIVE")
 				{
 						error_log( date('Y-m-d H:i:s ')."Keepalive ok\n", 3, $logfile);
 						fwrite($client,json_encode(array('error'=>"Keepalive",'result'=>date('Y-m-d H:i:s '))));
@@ -81,7 +81,7 @@ for (;;)
 				else
 				{
 						error_log( date('Y-m-d H:i:s ')."Invalid Daemon request\n", 3, $logfile);
-						fwrite($client, json_encode(array('error'=>"Invalid Daemon request",'result'=>"I expect 'GET TAGS' or 'KEEPALIVE'")));
+						fwrite($client, json_encode(array('error'=>"Invalid Daemon request",'result'=>"I expect 'GET TAGS' or 'KEEPALIVE' but not '$client_request'")));
 				}
 				fclose($client);
 		}
