@@ -1,8 +1,8 @@
 <?php
 // LoxBerry BLE Scanner Plugin 
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 1.7
-// 09.09.2016 07:01:55
+// Version 1.8
+// 24.09.2016 14:19:12
 
 // Configuration parameters
 $psubdir          =array_pop(array_filter(explode('/',pathinfo($_SERVER["SCRIPT_FILENAME"],PATHINFO_DIRNAME))));
@@ -163,7 +163,7 @@ else
 		  	if (isset($tag_data_array[1])) 							{ $tags_known["TAG$current_tag"]['use']     = trim($tag_data_array[1]); }
 		  	if (isset($tag_data_array[2])) 							{ $tags_known["TAG$current_tag"]['ms_list'] = trim($tag_data_array[2]); }
 		  	if (isset($tag_data_array[3])) 							{ $tags_known["TAG$current_tag"]['comment'] = trim($tag_data_array[3]); }
-				if (isset($tag_data_array[0])) 							{ $tags_known["TAG$current_tag"]['found']    = intval(in_array($tag_data_array[0],$tags_found)); } else { $tags_known["TAG$current_tag"]['found'] = 0; }
+				if (isset($tag_data_array[0])) 							{ $tags_known["TAG$current_tag"]['found']    = intval(in_array_r($tag_data_array[0],$tags_found)); } else { $tags_known["TAG$current_tag"]['found'] = 0; }
 				
 				// If Tag is checked, process it
 				if ($tags_known["TAG".$current_tag]['use'] == "on")
