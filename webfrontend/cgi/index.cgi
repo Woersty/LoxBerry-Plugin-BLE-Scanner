@@ -77,14 +77,16 @@ our $miniserver_to_use;
 our $miniservers;
 our @miniserver_id;
 our @arr_miniservers;
+our @arr_miniservernames;
 our $ms_disabled;
 our $miniserver_data;
+our $ms_display_name;
 ##########################################################################
 # Read Settings
 ##########################################################################
 
 # Version of this script
-$version = "0.0.2";
+$version = "0.0.3";
 
 
 # Figure out in which subfolder we are installed
@@ -201,6 +203,7 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 		# Read IP/Hostname for each Miniserver into array @arr_miniservers
 		for our $miniserver_id (1 .. $miniservers)
 		{	
+			push (@arr_miniservernames, $cfg_ms->param("MINISERVER$miniserver_id.FOLDERNAME"));
 			if ($cfg_ms->param("MINISERVER$miniserver_id.USECLOUDDNS") eq 1)
 			{
 				push (@arr_miniservers, $cfg_ms->param("MINISERVER$miniserver_id.CLOUDURL"));
@@ -247,6 +250,7 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 				our $ms_number 				= $ms_id + 1;
 				our $ms_ip     				= $arr_miniservers[$ms_id];
 				our $ms_used          = $tag_use; # Default value from Tag-Checkbox 
+				our $ms_display_name  = $arr_miniservernames[$ms_id];
 				our $ms_used_hidden   = $ms_used;
         if ($tag_use eq "unchecked") 
         {
