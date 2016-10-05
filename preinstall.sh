@@ -20,10 +20,12 @@
 # <ERROR> This is an error!"
 # <FAIL> This is a fail!"
 
-#ARGV1=$1 # First argument is temp folder during install
-#ARGV2=$2 # Second argument is Plugin-Name for scipts etc.
-#ARGV3=$3 # Third argument is Plugin installation folder
-#ARGV4=$4 # Forth argument is Plugin version
+ARGV1=$1 # First argument is temp folder during install
+ARGV2=$2 # Second argument is Plugin-Name for scipts etc.
+ARGV3=$3 # Third argument is Plugin installation folder
+ARGV4=$4 # Forth argument is Plugin version
+
+find /tmp/uploads/$ARGV1 -type f -print0 | xargs -0 dos2unix -q 
 
 # Exit with Status 0
 exit 0
