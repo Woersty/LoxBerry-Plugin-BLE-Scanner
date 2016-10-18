@@ -86,7 +86,7 @@ our $ms_display_name;
 ##########################################################################
 
 # Version of this script
-$version = "0.0.3";
+$version = "0.0.4";
 
 
 # Figure out in which subfolder we are installed
@@ -203,7 +203,7 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 		# Read IP/Hostname for each Miniserver into array @arr_miniservers
 		for our $miniserver_id (1 .. $miniservers)
 		{	
-			push (@arr_miniservernames, $cfg_ms->param("MINISERVER$miniserver_id.FOLDERNAME"));
+			push (@arr_miniservernames, $cfg_ms->param("MINISERVER$miniserver_id.NAME"));
 			if ($cfg_ms->param("MINISERVER$miniserver_id.USECLOUDDNS") eq 1)
 			{
 				push (@arr_miniservers, $cfg_ms->param("MINISERVER$miniserver_id.CLOUDURL"));
@@ -265,23 +265,31 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 						our @tag_ms_use_list_data = split /\~/, $known_tags[$tag_id]->[2];
 						foreach (sort keys @tag_ms_use_list_data) 
 						{
-									our @this_ms_use_data = split /\^/, $tag_ms_use_list_data[$_];
-									if ($ms_ip eq $this_ms_use_data[0])
+							our @this_ms_use_data = split /\^/, $tag_ms_use_list_data[$_];
+							if (defined($this_ms_use_data[0])) 
+							{
+								if ($ms_ip eq $this_ms_use_data[0])
+								{
+									if (defined($this_ms_use_data[1]))
 									{
-										if (defined($this_ms_use_data[1]))
+										if ($this_ms_use_data[1] eq "on")
 										{
-											if ($this_ms_use_data[1] eq "on")
-											{
-													$ms_used 				= "checked";
-													$ms_used_hidden = "on";
-											}
-											else
-											{
-													$ms_used 				= "unchecked";
-													$ms_used_hidden = "off";
-											}
+												$ms_used 				= "checked";
+												$ms_used_hidden = "on";
+										}
+										else
+										{
+												$ms_used 				= "unchecked";
+												$ms_used_hidden = "off";
 										}
 									}
+								}										
+							}
+							else
+							{
+								$ms_used 				= "unchecked";
+								$ms_used_hidden = "off";
+							}
 						}
       	}
 
@@ -359,7 +367,7 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 					our $miniserver_data ='';
 					for my $ms_number (1 .. param('miniservers'))
 					{
-						our $miniserver_data .= param('MS_'.$config_params[$config_id].$ms_number.'_ip').'^'.param('MS_'.$config_params[$config_id].$ms_number).'~';
+						$miniserver_data .= param('MS_'.$config_params[$config_id].$ms_number.'_ip').'^'.param('MS_'.$config_params[$config_id].$ms_number).'~';
 					}		 		  
 					$miniserver_data = substr ($miniserver_data ,0, -1);
 					$plugin_cfg->param("default.TAG$tag_id", $config_params[$config_id].':'.param($config_params[$config_id]).':'.$miniserver_data.':'.param(('comment'.$config_params[$config_id])));
