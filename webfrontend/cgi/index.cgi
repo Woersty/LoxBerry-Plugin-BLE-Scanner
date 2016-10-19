@@ -57,7 +57,6 @@ our $nexturl;
 our $do="form";
 my  $home = File::HomeDir->my_home;
 our $psubfolder;
-our $pname;
 our $bkpcounts;
 our $languagefileplugin;
 our $phraseplugin;
@@ -81,12 +80,14 @@ our @arr_miniservernames;
 our $ms_disabled;
 our $miniserver_data;
 our $ms_display_name;
+our @language_strings;
+
 ##########################################################################
 # Read Settings
 ##########################################################################
 
 # Version of this script
-$version = "0.0.4";
+$version = "0.11";
 
 
 # Figure out in which subfolder we are installed
@@ -105,7 +106,6 @@ $miniservers    = $cfg->param("BASE.MINISERVERS");
 # Get known Tags from plugin config
 $plugin_cfg 		= new Config::Simple(syntax => 'ini');
 $plugin_cfg 		= Config::Simple->import_from("$installfolder/config/plugins/$psubfolder/ble_scanner.cfg", \%Config)  or die Config::Simple->error();
-$pname          = $plugin_cfg->param("SCRIPTNAME");
 
 # Get through all the config options
 foreach (sort keys %Config) 
@@ -141,30 +141,35 @@ if ( !$query{'saveformdata'} ) { if ( param('saveformdata') ) { $saveformdata = 
 if ( !$query{'lang'} )         { if ( param('lang')         ) { $lang         = quotemeta(param('lang'));         } else { $lang         = $lang;  } } else { $lang         = quotemeta($query{'lang'});         }
 if ( !$query{'do'} )           { if ( param('do')           ) { $do           = quotemeta(param('do'));           } else { $do           = "form"; } } else { $do           = quotemeta($query{'do'});           }
 
-# Clean up saveformdata variable
-$saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
-
 # Init Language
-	# Clean up lang variable
-	$lang         =~ tr/a-z//cd; $lang         = substr($lang,0,2);
-
-  # If there's no language phrases file for choosed language, use german as default
+# Clean up lang variable
+	$lang         =~ tr/a-z//cd; 
+	$lang         = substr($lang,0,2);
+	# If there's no language phrases file for choosed language, use german as default
 	if (!-e "$installfolder/templates/system/$lang/language.dat") 
 	{
 		$lang = "de";
 	}
 
-	# Read translations / phrases
+# Read translations / phrases
 	$languagefile 			= "$installfolder/templates/system/$lang/language.dat";
 	$phrase 						= new Config::Simple($languagefile);
-	
-	if (!-e "$installfolder/templates/plugins/$psubfolder/$lang/language.dat") 
-	{
-		$lang = "de";
-	}
 	$languagefileplugin = "$installfolder/templates/plugins/$psubfolder/$lang/language.dat";
 	$phraseplugin 			= new Config::Simple($languagefileplugin);
+	foreach my $key (keys %{ $phraseplugin->vars() } ) 
+	{
+		(my $cfg_section,my $cfg_varname) = split(/\./,$key,2);
+		push @language_strings, $cfg_varname;
+	}
+	foreach our $template_string (@language_strings)
+	{
+		${$template_string} = $phraseplugin->param($template_string);
+	}		
 
+# Clean up saveformdata variable
+	$saveformdata =~ tr/0-1//cd; 
+	$saveformdata = substr($saveformdata,0,1);
+	
 ##########################################################################
 # Main program
 ##########################################################################
@@ -192,7 +197,7 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 	sub form 
 	{
 		# The page title read from language file + our name
-		$template_title = $phrase->param("TXT0000") . ": " . $pname;
+		$template_title = $phrase->param("TXT0000") . ": " . $phraseplugin->param("MY_NAME");
 
 		# Print Template header
 		&lbheader;
@@ -212,6 +217,7 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 			{			
 				push (@arr_miniservers, $cfg_ms->param("MINISERVER$miniserver_id.IPADDRESS"));
 			}
+
 		}
 
 		# Parse Tags into template
@@ -248,7 +254,6 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 			for our $ms_id (0 .. $#arr_miniservers)
 			{
 				our $ms_number 				= $ms_id + 1;
-				our $ms_ip     				= $arr_miniservers[$ms_id];
 				our $ms_used          = $tag_use; # Default value from Tag-Checkbox 
 				our $ms_display_name  = $arr_miniservernames[$ms_id];
 				our $ms_used_hidden   = $ms_used;
@@ -268,7 +273,7 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 							our @this_ms_use_data = split /\^/, $tag_ms_use_list_data[$_];
 							if (defined($this_ms_use_data[0])) 
 							{
-								if ($ms_ip eq $this_ms_use_data[0])
+								if ($ms_number eq $this_ms_use_data[0])
 								{
 									if (defined($this_ms_use_data[1]))
 									{
@@ -314,15 +319,13 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 		}
 
     # Parse some strings from language file into template 
-		our $str_tags    	  	= $phraseplugin->param("TXT0001");
+		our $str_tags    	  	= $phraseplugin->param("TXT_BLUETOOTH_TAGS");
 		our $configured_tags  = $str_tags;
-		our $mark_tag_hint    = $phraseplugin->param("TXT0002");
-   	our $str_no_tags 		  = $phraseplugin->param("TXT0003");
 	
 		# If there are no Tags change headline
 		if ( $#known_tags eq -1)
 		{
-			$configured_tags  = $str_no_tags;
+			$configured_tags  = $phraseplugin->param("TXT_NO_TAGS");
 		}
 		
 		# Parse page
@@ -367,7 +370,7 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 					our $miniserver_data ='';
 					for my $ms_number (1 .. param('miniservers'))
 					{
-						$miniserver_data .= param('MS_'.$config_params[$config_id].$ms_number.'_ip').'^'.param('MS_'.$config_params[$config_id].$ms_number).'~';
+						$miniserver_data .= $ms_number.'^'.param('MS_'.$config_params[$config_id].$ms_number).'~';
 					}		 		  
 					$miniserver_data = substr ($miniserver_data ,0, -1);
 					$plugin_cfg->param("default.TAG$tag_id", $config_params[$config_id].':'.param($config_params[$config_id]).':'.$miniserver_data.':'.param(('comment'.$config_params[$config_id])));
@@ -384,8 +387,8 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 		{
 		exit(1);
 		}
-		$template_title = $phrase->param("TXT0000") . ": " . $pname;
-		$message 				= $phraseplugin->param("TXT0005");
+		$template_title = $phrase->param("TXT0000") . ": " . $phraseplugin->param("MY_NAME");
+		$message 				= $phraseplugin->param("TXT_SAVE_OK");
 		$nexturl 				= "./index.cgi?do=form";
 		
 		# Print Template
@@ -431,13 +434,12 @@ $saveformdata =~ tr/0-1//cd; $saveformdata = substr($saveformdata,0,1);
 		 # Create Help page
 	  $helplink = "http://www.loxwiki.eu/display/LOXBERRY/BLE-Scanner";
 	  open(F,"$installfolder/templates/plugins/$psubfolder/$lang/help.html") || die "Missing template plugins/$psubfolder/$lang/help.html";
-	    @help = <F>;
-	    foreach (@help)
-	    {
-	      $_ =~ s/<!--\$psubfolder-->/$psubfolder/g;
-	      s/[\n\r]/ /g;
-	      $helptext = $helptext . $_;
-	    }
+ 		  while (<F>) 
+		  {
+		     $_ =~ s/<!--\$(.*?)-->/${$1}/g;
+		     $helptext = $helptext . $_;
+		  }
+
 	  close(F);
 	  open(F,"$installfolder/templates/system/$lang/header.html") || die "Missing template system/$lang/header.html";
 	    while (<F>) 

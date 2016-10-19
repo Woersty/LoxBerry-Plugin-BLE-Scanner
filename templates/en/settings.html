@@ -1,59 +1,59 @@
 									<div id="dialog"></div>
 									<link rel="stylesheet" href="/plugins/<!--$psubfolder-->/style.css">
 									<script src="/plugins/<!--$psubfolder-->/jquery-ui-1.9.2.custom.min.js"></script>
-										<center>
-											<img src="/system/images/icons/<!--$psubfolder-->/icon_64.png">
-											<table border=0 cellpadding=10>
-												<tr>
-													<td width="550px">
-														<script>
-															var at_least_one=0;
-															var firstrun=1;
-															function delete_tag(tag_mac,tag_comment)
+									<center>
+										<img src="/system/images/icons/<!--$psubfolder-->/icon_64.png">
+										<table border=0 cellpadding=10>
+											<tr>
+												<td width="550px">
+													<script>
+														var at_least_one=0;
+														var firstrun=1;
+														function delete_tag(tag_mac,tag_comment)
+														{
+															ConfirmDialog(tag_mac,'<br/><table><tr><td><img src="/plugins/<!--$psubfolder-->/ico_delete.png"></td><td><!--$TXT_DELETE_TAG--><br/><br/><center><b>"'+tag_comment+'"</b><br/><font face=Courier><small>'+tag_mac+'</small></font></center></td></tr></table><br/>','<!--$MY_NAME--> - <!--$TXT_DELETE_TAG_DIALOG_TITLE-->');
+														}
+														function refresh_strings()
+														{
+															var totalCheckboxes = $('input:checkbox').length;
+															if (totalCheckboxes === 0)
 															{
-																ConfirmDialog(tag_mac,'<br/><table><tr><td><img src="/plugins/<!--$psubfolder-->/ico_delete.png"></td><td>This deletes the following Tag. Are you sure?<br/><br/><center><b>"'+tag_comment+'"</b><br/><font face=Courier><small>'+tag_mac+'</small></font></center></td></tr></table><br/>','<!--$pname--> - Delete Tag');
+																$('#configured_tags').html('<b><!--$TXT_NO_TAGS--><b>');
+																$('#mark_tag_hint').html('');
 															}
-															function refresh_strings()
+															else
 															{
-																var totalCheckboxes = $('input:checkbox').length;
-																if (totalCheckboxes === 0)
+																$('#configured_tags').html('<b><!--$TXT_BLUETOOTH_TAGS--><b>');
+																$('#mark_tag_hint').html('<!--$TXT_MARK_TAG_HINT-->');
+															}
+														}
+														function ms_scripting(msdata)
+														{
+															$('#MS_'+msdata).click(function()
+															{
+																if (!$('#MS_'+msdata).is(':checked'))
 																{
-																	$('#configured_tags').html('<b><!--$str_no_tags--><b>');
-																	$('#mark_tag_hint').html('');
+																	$('label[for=MS_'+msdata+']').removeClass('ui-checkbox-on').addClass('ui-checkbox-off');
+																	$('#MS_'+msdata+'Hidden').disabled = false;
+																	$('#MS_'+msdata+'Hidden').val('off');
+																	return;
 																}
 																else
 																{
-																	$('#configured_tags').html('<b><!--$str_tags--><b>');
-																	$('#mark_tag_hint').html('<!--$mark_tag_hint-->');
+																	$('label[for=MS_'+msdata+']').removeClass('ui-checkbox-off').addClass('ui-checkbox-on');
+																	$('#MS_'+msdata+'Hidden').disabled = true;
+																	$('#MS_'+msdata+'Hidden').val('on');
+																	return;
 																}
-															}
-															function ms_scripting(msdata)
-															{
-																$('#MS_'+msdata).click(function()
-																{
-																	if (!$('#MS_'+msdata).is(':checked'))
-																	{
-																		$('label[for=MS_'+msdata+']').removeClass('ui-checkbox-on').addClass('ui-checkbox-off');
-																		$('#MS_'+msdata+'Hidden').disabled = false;
-																		$('#MS_'+msdata+'Hidden').val('off');
-																		return;
-																	}
-																	else
-																	{
-																		$('label[for=MS_'+msdata+']').removeClass('ui-checkbox-off').addClass('ui-checkbox-on');
-																		$('#MS_'+msdata+'Hidden').disabled = true;
-																		$('#MS_'+msdata+'Hidden').val('on');
-																		return;
-																	}
-																});
-															}
+															});
+														}
 														function reset_rssi()
 														{
 															$('.rssitag').each(function(i, obj) 
 															{
 																$(obj).attr('src', '/plugins/<!--$psubfolder-->/coverage_none.svg');
-																$(obj).prop('alt', 'No signal');
-																$(obj).prop('title', 'No signal');
+																$(obj).prop('alt', '<!--$TXT_NO_SIGNAL-->');
+																$(obj).prop('title', '<!--$TXT_NO_SIGNAL-->');
 															});
 															$('.ico_online').each(function(i, obj) 
 															{
@@ -65,335 +65,334 @@
 															if (rssi < -80) 
 															{
 																level = 'weak';
-																str_level = 'Weak signal ('+rssi+' dB)';
+																str_level = '<!--$TXT_WEAK_SIGNAL--> ('+rssi+' dB)';
 															}
 															else if (rssi >= -80 && rssi < -50 ) 
 															{
 																level = 'medium';
-																str_level = 'Good signal ('+rssi+' dB)';
+																str_level = '<!--$TXT_GOOD_SIGNAL--> ('+rssi+' dB)';
 															}
 															else if (rssi >= -50 ) 
 															{
 																level = 'strong';
-																str_level = 'Strong signal ('+rssi+' dB)';
+																str_level = '<!--$TXT_STRONG_SIGNAL--> ('+rssi+' dB)';
 															}
 															else
 															{
 																level = 'none';
-																str_level = 'No Signal';
+																str_level = '<!--$TXT_NO_SIGNAL-->';
 															}
 															$('#rssi'+valueID).attr('src', '/plugins/<!--$psubfolder-->/coverage_'+level+'.svg');
 															$('#rssi'+valueID).prop('alt', str_level);
 															$('#rssi'+valueID).prop('title', str_level);
 														}
 														function tag_scripting(valueID)
+														{
+															var new_tag_inputtext	='<!--$TXT_ENTER_TAG_NAME_HERE-->';
+															if (!$('#'+valueID).is(':checked'))
 															{
-																var new_tag_inputtext	='Enter a name';
+																$('#'+valueID+'msdiv').fadeOut( 400 );
+															}
+															else
+															{
+																$('#'+valueID+'msdiv').fadeIn( 400 );
+															}
+															$('#'+valueID).click(function()
+															{
 																if (!$('#'+valueID).is(':checked'))
 																{
+																	$('label[for='+valueID+']').removeClass('ui-checkbox-on').addClass('ui-checkbox-off');
+																	$('#'+valueID+'Hidden').disabled = false;
+																	$('#'+valueID+'Hidden').val('off');
 																	$('#'+valueID+'msdiv').fadeOut( 400 );
+																	return;
 																}
 																else
 																{
+																	$('label[for='+valueID+']').removeClass('ui-checkbox-off').addClass('ui-checkbox-on');
+																	$('#'+valueID+'Hidden').disabled = true;
+																	$('#'+valueID+'Hidden').val('on');
 																	$('#'+valueID+'msdiv').fadeIn( 400 );
+																	return;
 																}
-																$('#'+valueID).click(function()
+															});
+															$('#div'+valueID).on('focus', function() { if ($('#div'+valueID).html()=== new_tag_inputtext) { $('#div'+valueID).html('');$('#div'+valueID).css('width','300px'); }});
+															$('#div'+valueID).on('blur keyup paste input', function()
+															{
+																var rule = /^[0-9A-Za-z\-\_\s]+$/;
+																if(!rule.test($('#div'+valueID).text()) &&  $('#div'+valueID).html().length )
 																{
-																	if (!$('#'+valueID).is(':checked'))
+																	$('#form-error-message').html('<!--$TXT_RULE_1-->');
+																	$('#div'+valueID).text($('#div'+valueID).text().replace(/[^0-9A-Za-z\-\_\s]/g, ""));
+																	var offset = $('#div'+valueID).offset();
+																	$('#form-error-message').fadeIn(400);
+																	$('#form-error-message').css({'padding': '5px', 'border': '1px solid #FF0000', 'border-radius': '5px', 'color': '#FF0000', 'background-color': '#FFFFC0', 'z-index': 1000, 'top': offset.top - 35, 'left': offset.left, 'position':'absolute'});
+																	setTimeout( function()
+																		{ $('#form-error-message').fadeOut(400); }, 3000);
+																}
+																$('#comment'+valueID).prop('value',$('#div'+valueID).text()+' ');
+															});
+															$('#main_form').on('submit', function()
+															{
+																if($('#'+valueID).checked)
+																{
+																	$('#'+valueID+'Hidden').disabled = true;
+																} return;
+
+															});
+														}
+														function ConfirmDialog(tag_mac,message,title)
+														{
+															$('#dialog').html(message)
+																.prop('id','dialog')
+																.dialog(
+																{
+																	modal: true, title: title, zIndex: 10000, autoOpen: true,
+																	width: 'auto', resizable: false,
+																	buttons:
 																	{
-																		$('label[for='+valueID+']').removeClass('ui-checkbox-on').addClass('ui-checkbox-off');
-																		$('#'+valueID+'Hidden').disabled = false;
-																		$('#'+valueID+'Hidden').val('off');
-																		$('#'+valueID+'msdiv').fadeOut( 400 );
-																		return;
+																		<!--$TXT_BTN_YES-->: function ()
+																		{
+																			$('#BLETAG'+tag_mac).empty();
+																			refresh_strings();
+																			$(this).dialog("close");
+																		},
+																		<!--$TXT_BTN_NO-->: function ()
+																		{
+																			$(this).dialog("close");
+																		}
+																	},
+																	close: function (event, ui)
+																	{
+																		$(this).hide();
+																	}
+																});
+														};
+														function Scan_no_results(title,message)
+														{
+															$('#dialog').html(message)
+																.prop('id','dialog')
+																.dialog(
+																{
+																	modal: true, title: '<!--$MY_NAME--> - '+title, zIndex: 10000, autoOpen: true,
+																	width: 'auto', resizable: false,
+																	buttons:
+																	{
+																		<!--$TXT_PITY-->: function ()
+																		{
+																			$(this).dialog("close");
+																		},
+																		<!--$TXT_AGAIN-->: function ()
+																		{
+																			$('#btnscan').trigger('click');
+																			$(this).dialog("close");
+																		}
+																	},
+																	close: function (event, ui)
+																	{
+																		$(this).hide();
+																	}
+																});
+														};
+														var svg_loader ="<div class='circle one'></div><div class='circle two'></div><div class='circle three'></div><!--$TXT_SEARCHING-->";
+													</script>
+													<style>
+														@keyframes circle
+														{
+															from
+															{
+																transform: scale(0)
+															}
+															to
+															{
+																transform: scale(32)
+															}
+														}
+														.circle
+														{
+															margin: 0 auto;
+															width: 35px;
+															height: 35px;
+															border: 5px solid rgba(0, 130, 252, .5);
+															-webkit-background-clip: padding-box; /* for Safari */
+															background-clip: padding-box; /* for IE9+, Firefox 4+, Opera, Chrome */
+															border-radius: 70px;
+															position: absolute;
+															top: -6px;
+															left: -8px;
+														}
+														.one
+														{
+															animation: circle 4s infinite linear;
+														}
+														.two
+														{
+															animation: circle 3s infinite linear;
+														}
+														.three
+														{
+															animation: circle 2s infinite linear;
+														}
+													</style>
+													<table>
+														<tr>
+															<td>
+																<a style="width:400px;" id="btnscan" data-icon="search" data-role="button" data-mini="true" onclick="reset_rssi(); var data=''; $('#btnscan').prop('innerHTML',svg_loader); $.getJSON('/plugins/<!--$psubfolder-->/?mode=scan',
+																function(data)
+																{
+																	if(typeof data['error'] !== 'undefined')
+																	{
+																		$('#btnscan').text( '<!--$TXT_UPDATE_STATUS_SEARCH_NEW-->' );
+																		Scan_no_results('<!--$TXT_DIALOG_SEARCH_ERROR-->','<table height=\'75px\'><tr><td valign=center><img src=\'/plugins/<!--$psubfolder-->/no_tags.png\'></td><td>&nbsp;</td><td valign=center align=center><br/><!--$TXT_DIALOG_ERROR_LOXBERRY--><br/><br/><font face=courier color=red><b>'+data['error']+'</b><br/>'+data['result']+'</font></td></tr></table>');
 																	}
 																	else
 																	{
-																		$('label[for='+valueID+']').removeClass('ui-checkbox-off').addClass('ui-checkbox-on');
-																		$('#'+valueID+'Hidden').disabled = true;
-																		$('#'+valueID+'Hidden').val('on');
-																		$('#'+valueID+'msdiv').fadeIn( 400 );
-																		return;
+																		$.each(data, function (index, value)
+																		{
+																			if ( !$('#'+value['id'] ).length )
+																			{
+																				at_least_one=1;
+																				var new_tag_inputtext	='<!--$TXT_ENTER_TAG_NAME_HERE-->';
+																				$( '<div id=\'BLETAG'+value['id']+'\'> 																																																																																																																																																																												      \
+																							<div id=\'wrap'+value['id']+'\'>                                                                                                                                                                                                                                                                                                                                                              \
+																								 <table>                                                                                                                                                                                                                                                                                                                                                                                    \
+																									<tr>                                                                                                                                                                                                                                                                                                                                                                                      \
+																										<td>    																																																																																																																																																																																					      \
+																											<img style=\' opacity: 0.3; filter: alpha(opacity=30);\' src=\'/plugins/<!--$psubfolder-->/ico_delete.png\' border=\'0\' width=\'48\' height=\'48\'></a>                                                                                                                                                                                                               					      \
+																										</td>                                                                                                                                                                                                                                                                                                                                                                                   \
+																										<td>    																																																																																																																																																																																					      \
+																											<img class=\'ico_online\' id=\''+value['id']+'found\' src=\'/plugins/<!--$psubfolder-->/ico_online'+value['found']+'.svg\' border=\'0\' width=\'48\' height=\'48\'>                                                                                                                                                                                                            	      \
+																										</td>                                                                                                                                                                                                                                                                                                                                                                                   \
+																										<td>                                                                                                                                                                                                                                                                                                                                                                                    \
+																											<input style=\'display:none\' id=\''+value['id']+'\'        name=\''+value['id']+'\' 			 type=\'checkbox\' data-cacheval=\'false\' unchecked mac=\''+value['id']+'\'>                                                                                                                                                                                                               \
+																												<div class=\'ui-checkbox\'>                                                                                                                                                                                                                                                                                                                                                         \
+																													<label for=\''+value['id']+'\' class=\'ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off\'>                                                                                                                                                                                                                                                                    \
+																														<table>                                                                                                                                                                                                                                                                                                                                                                         \
+																															<tr>                                                                                                                                                                                                                                                                                                                                                                          \
+																																<td>                                                                                                                                                                                                                                                                                                                                                                        \
+																																	<div data-validation=\'length alphanumeric\' data-validation-length=\'1-32\' data-validation-allowing=\'-_\' class=\'editable\' contenteditable=\'true\' style=\'width:300px; padding:2px; border: 1px solid #7e7e7e; border-radius: 5px; color: #1166FF; font-weight: bold; background-color: #e9e9e9; \' id=\'div'+value['id']+'\'>'+new_tag_inputtext+'</div>          \
+																																</td>                                                                                                                                                                                                                                                                                                                                                                       \
+																																<td>                                                                                                                                                                                                                                                                                                                                                                        \
+																																	<small>                                                                                                                                                                                                                                                                                                                                                                   \
+																																		<font color=\'#1166FF\' face=\'courier\'>                                                                                                                                                                                                                                                                                                                					      \
+																																			['+value['id']+']                                                                                                                                                                                                                                                                                                                                                     \
+																																		</font>                                                                                                                                                                                                                                                                                                                                                                 \
+																																	</small>                                                                                                                                                                                                                                                                                                                                                                  \
+																																</td>                                                                                                                                                                                                                                                                                                                                                                       \
+																																<td>																																																																																																																																																																																	      \
+																																	<small>                                                                                                                                                                                                                                                                                                                                                                   \
+																																		<font color=\'#1166FF\' face=\'courier\'>                                                                                                                                                                                                                                                                                                                					      \
+																																			<img tagid=\''+value['id']+'\' class=\'rssitag\' id=\'rssi'+value['id']+'\' title=\'<!--$TXT_NO_SIGNAL-->\' alt=\'<!--$TXT_NO_SIGNAL-->\' width=\'32px\' height=\'32px\'src=\'/plugins/<!--$psubfolder-->/signal.svg\'/>                                                                                                                                              \
+																																		</font>                                                                                                                                                                                                                                                                                                                                                                 \
+																																	</small>                                                                                                                                                                                                                                                                                                                                                                  \
+																																</td>                                                                                                                                                                                                                                                                                                                                                                       \
+																															</tr>                                                                                                                                                                                                                                                                                                                                                                         \
+																														</table>                                                                                                                                                                                                                                                                                                                                                                        \
+																													</label>                                                                                                                                                                                                                                                                                                                                                                          \
+																												</div>                                                                                                                                                                                                                                                                                                                                                                              \
+																											<input name=\'comment'+value['id']+'\' id=\'comment'+value['id']+'\' type=\'hidden\' value=\''+new_tag_inputtext+'\'>                                                                                                                                                                                                                                                                 \
+																											<input id=\''+value['id']+'Hidden\'  name=\''+value['id']+'\' 			 type=\'hidden\'     value=\'off\'>                                                                                                                                                                                                                                                                               \
+																										</td>                                                                                                                                                                                                                                                                                                                                                                                   \
+																										<td>                                                                                                                                                                                                                                                                                                                                                                                    \
+																											<div style=\'  margin-left:5px; background: url(/plugins/<!--$psubfolder-->/info.svg); background-position: bottom right; background-repeat: no-repeat; border-radius: 20px 5px 20px 5px ;border: 1px dotted #6AB3F8;padding: 5px; vertical-align:middle; cursor:default; height: 43px; \'><nobr><font color=\'#6AB3F8\'><i><!--$TXT_SAVE_BEFORE_MS_CONFIG--></i></font></nobr></div> \
+																										</td>                                                                                                                                                                                                                                                                                                                                                                                   \
+																									</tr>                                                                                                                                                                                                                                                                                                                                                                                     \
+																								</table>                                                                                                                                                                                                                                                                                                                                                                                    \
+																							</div>																																																																																																																																																																																									      \
+																						</div>').appendTo($('#tags'));
+																						$('#'+value['id']).prop('visibility','hidden');
+																						tag_scripting(value['id']);
+																						tag_rssi(value['id'],value['rssi']);
+																			}
+																			else
+																			{
+																				$('#'+value['id']+'found').attr('src', '/plugins/<!--$psubfolder-->/ico_online'+value['found']+'.svg');
+																				tag_rssi(value['id'],value['rssi']);
+																			}
+																		});
+																		if (at_least_one == 0)
+																		{
+																			if ( firstrun == 0 )
+																			{
+																				Scan_no_results('<!--$TXT_DIALOG_SEARCH_DONE-->','<table height=\'75px\'><tr><td><img src=\'/plugins/<!--$psubfolder-->/no_tags.png\'></td><td>&nbsp;</td><td valign=center><!--$TXT_DIALOG_NO_NEW_TAGS--></td></tr></table>');
+																			}
+																			else
+																			{
+																					firstrun = 0;
+																			}
+																		}
+																		$('#btnscan').text( '<!--$TXT_UPDATE_STATUS_SEARCH_NEW-->' );
 																	}
+																	refresh_strings();
 																});
-																$('#div'+valueID).on('focus', function() { if ($('#div'+valueID).html()=== new_tag_inputtext) { $('#div'+valueID).html('');$('#div'+valueID).css('width','300px'); }});
-																$('#div'+valueID).on('blur keyup paste input', function()
-																{
-																	var rule = /^[0-9A-Za-z\-\_\s]+$/;
-																	if(!rule.test($('#div'+valueID).text()) &&  $('#div'+valueID).html().length )
-																	{
-																		$('#form-error-message').html('Please use a-z A-Z 0-9 and -_  only.');
-																		$('#div'+valueID).text($('#div'+valueID).text().replace(/[^0-9A-Za-z\-\_\s]/g, ""));
-																		var offset = $('#div'+valueID).offset();
-																		$('#form-error-message').fadeIn(400);
-																		$('#form-error-message').css({'padding': '5px', 'border': '1px solid #FF0000', 'border-radius': '5px', 'color': '#FF0000', 'background-color': '#FFFFC0', 'z-index': 1000, 'top': offset.top - 35, 'left': offset.left, 'position':'absolute'});
-																		setTimeout( function()
-																		{ $('#form-error-message').fadeOut(400); }, 3000);
-																	}
-																	$('#comment'+valueID).prop('value',$('#div'+valueID).text()+' ');
-																});
-																$('#main_form').on('submit', function()
-																{
-																	if($('#'+valueID).checked)
-																	{
-																		$('#'+valueID+'Hidden').disabled = true;
-																	} return;
-
-																});
-															}
-															function ConfirmDialog(tag_mac,message,title)
-															{
-																$('#dialog').html(message)
-																	.prop('id','dialog')
-																	.dialog(
-																	{
-																		modal: true, title: title, zIndex: 10000, autoOpen: true,
-																		width: 'auto', resizable: false,
-																		buttons:
-																		{
-																			Ja: function ()
-																			{
-																				$('#BLETAG'+tag_mac).empty();
-																				refresh_strings();
-																				$(this).dialog("close");
-																			},
-																			Nein: function ()
-																			{
-																				$(this).dialog("close");
-																			}
-																		},
-																		close: function (event, ui)
-																		{
-																			$(this).hide();
-																		}
-																	});
-															};
-															function Scan_no_results(title,message)
-															{
-																$('#dialog').html(message)
-																	.prop('id','dialog')
-																	.dialog(
-																	{
-																		modal: true, title: '<!--$pname--> - '+title, zIndex: 10000, autoOpen: true,
-																		width: 'auto', resizable: false,
-																		buttons:
-																		{
-																			Schade: function ()
-																			{
-																				$(this).dialog("close");
-																			},
-																			Nochmal: function ()
-																			{
-																				$('#btnscan').trigger('click');
-																				$(this).dialog("close");
-																			}
-																		},
-																		close: function (event, ui)
-																		{
-																			$(this).hide();
-																		}
-																	});
-															};
-															var svg_loader ="<div class='circle one'></div><div class='circle two'></div><div class='circle three'></div>Searching...";
-														</script>
-														<style>
-															@keyframes circle
-															{
-																from
-																{
-																	transform: scale(0)
-																}
-																to
-																{
-																	transform: scale(32)
-																}
-															}
-															.circle
-															{
-																margin: 0 auto;
-																width: 35px;
-																height: 35px;
-																border: 5px solid rgba(0, 130, 252, .5);
-																-webkit-background-clip: padding-box; /* for Safari */
-																background-clip: padding-box; /* for IE9+, Firefox 4+, Opera, Chrome */
-																border-radius: 70px;
-																position: absolute;
-																top: -6px;
-																left: -8px;
-															}
-															.one
-															{
-																animation: circle 4s infinite linear;
-															}
-															.two
-															{
-																animation: circle 3s infinite linear;
-															}
-															.three
-															{
-																animation: circle 2s infinite linear;
-															}
-														</style>
-														<table>
-															<tr>
-																<td>
-																	<a style="width:400px;" id="btnscan" data-icon="search" data-role="button" data-mini="true" onclick="reset_rssi(); var data=''; $('#btnscan').prop('innerHTML',svg_loader); $.getJSON('/plugins/<!--$psubfolder-->/?mode=scan',
-																	function(data)
-																	{
-																		if(typeof data['error'] !== 'undefined')
-																		{
-																			$('#btnscan').text( 'Refresh the status and search for currently unknown Tags' );
-																			Scan_no_results('An error occured','<table height=\'75px\'><tr><td valign=center><img src=\'/plugins/<!--$psubfolder-->/no_tags.png\'></td><td>&nbsp;</td><td valign=center align=center><br/>Error message sent by the LoxBerry-System:<br/><br/><font face=courier color=red><b>'+data['error']+'</b><br/>'+data['result']+'</font></td></tr></table>');
-																		}
-																		else
-																		{
-																			$.each(data, function (index, value)
-																			{
-																				if ( !$('#'+value['id'] ).length )
-																				{
-																					at_least_one=1;
-																					var new_tag_inputtext	='Enter a name';
-																					$( '<div id=\'BLETAG'+value['id']+'\'> 																																																																																																																																																																												\
-																								<div id=\'wrap'+value['id']+'\'>                                                                                                                                                                                                                                                                                                                                                        \
-																									 <table>                                                                                                                                                                                                                                                                                                                                                                              \
-																										<tr>                                                                                                                                                                                                                                                                                                                                                                                \
-																											<td>    																																																																																																																																																																																					\
-																												<img style=\' opacity: 0.3; filter: alpha(opacity=30);\' src=\'/plugins/<!--$psubfolder-->/ico_delete.png\' border=\'0\' width=\'48\' height=\'48\'></a>                                                                                                                                                                                                               					\
-																											</td>                                                                                                                                                                                                                                                                                                                                                                             \
-																											<td>    																																																																																																																																																																																					\
-																												<img class=\'ico_online\' id=\''+value['id']+'found\' src=\'/plugins/<!--$psubfolder-->/ico_online'+value['found']+'.svg\' border=\'0\' width=\'48\' height=\'48\'>                                                                                                                                                                                                            	\
-																											</td>                                                                                                                                                                                                                                                                                                                                                                             \
-																											<td>                                                                                                                                                                                                                                                                                                                                                                              \
-																												<input style=\'display:none\' id=\''+value['id']+'\'        name=\''+value['id']+'\' 			 type=\'checkbox\' data-cacheval=\'false\' unchecked mac=\''+value['id']+'\'>                                                                                                                                                                                                         \
-																													<div class=\'ui-checkbox\'>                                                                                                                                                                                                                                                                                                                                                   \
-																														<label for=\''+value['id']+'\' class=\'ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off\'>                                                                                                                                                                                                                                                              \
-																															<table>                                                                                                                                                                                                                                                                                                                                                                   \
-																																<tr>                                                                                                                                                                                                                                                                                                                                                                    \
-																																	<td>                                                                                                                                                                                                                                                                                                                                                                  \
-																																		<div data-validation=\'length alphanumeric\' data-validation-length=\'1-32\' data-validation-allowing=\'-_\' class=\'editable\' contenteditable=\'true\' style=\'width:300px; padding:2px; border: 1px solid #7e7e7e; border-radius: 5px; color: #1166FF; font-weight: bold; background-color: #e9e9e9; \' id=\'div'+value['id']+'\'>'+new_tag_inputtext+'</div>    \
-																																	</td>                                                                                                                                                                                                                                                                                                                                                                 \
-																																	<td>                                                                                                                                                                                                                                                                                                                                                                  \
-																																		<small>                                                                                                                                                                                                                                                                                                                                                             \
-																																			<font color=\'#1166FF\' face=\'courier\'>                                                                                                                                                                                                                                                                                                                         \
-																																				['+value['id']+']                                                                                                                                                                                                                                                                                                                                               \
-																																			</font>                                                                                                                                                                                                                                                                                                                                                           \
-																																		</small>                                                                                                                                                                                                                                                                                                                                                            \
-																																	</td>                                                                                                                                                                                                                                                                                                                                                                 \
-																																	<td>																																																																																																																																																																																	\
-																																		<small>                                                                                                                                                                                                                                                                                                                                                             \
-																																			<font color=\'#1166FF\' face=\'courier\'>                                                                                                                                                                                                                                                                                                                					\
-																																				<img tagid=\''+value['id']+'\' class=\'rssitag\' id=\'rssi'+value['id']+'\' title=\'No signal\' alt=\'No signal\' width=\'32px\' height=\'32px\'src=\'/plugins/<!--$psubfolder-->/signal.svg\'/>                                                                                                                                                                                                                   \
-																																			</font>                                                                                                                                                                                                                                                                                                                                                           \
-																																		</small>                                                                                                                                                                                                                                                                                                                                                            \
-																																	</td>                                                                                                                                                                                                                                                                                                                                                                 \
-																																</tr>                                                                                                                                                                                                                                                                                                                                                                   \
-																															</table>                                                                                                                                                                                                                                                                                                                                                                  \
-																														</label>                                                                                                                                                                                                                                                                                                                                                                    \
-																													</div>                                                                                                                                                                                                                                                                                                                                                                        \
-																												<input name=\'comment'+value['id']+'\' id=\'comment'+value['id']+'\' type=\'hidden\' value=\''+new_tag_inputtext+'\'>                                                                                                                                                                                                                                                           \
-																												<input id=\''+value['id']+'Hidden\'  name=\''+value['id']+'\' 			 type=\'hidden\'     value=\'off\'>                                                                                                                                                                                                                                                                         \
-																											</td>                                                                                                                                                                                                                                                                                                                                                                             \
-																											<td>                                                                                                                                                                                                                                                                                                                                                                              \
-																												<div style=\'  margin-left:5px; background: url(/plugins/<!--$psubfolder-->/info.svg); background-position: bottom right; background-repeat: no-repeat; border-radius: 20px 5px 20px 5px ;border: 1px dotted #6AB3F8;padding: 5px; vertical-align:middle; cursor:default; height: 43px; \'><nobr><font color=\'#6AB3F8\'><i>&nbsp;&nbsp;&nbsp;To configure a Miniserver,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>&nbsp;&nbsp;&nbsp;please save the Tag first.</i></font></nobr></div> 																																										    \
-																											</td>                                                                                                                                                                                                                                                                                                                                                                             \
-																										</tr>                                                                                                                                                                                                                                                                                                                                                                               \
-																									</table>                                                                                                                                                                                                                                                                                                                                                                              \
-																								</div>																																																																																																																																																																																									\
-																							</div>').appendTo($('#tags'));
-																							$('#'+value['id']).prop('visibility','hidden');
-																							tag_scripting(value['id']);
-																							tag_rssi(value['id'],value['rssi']);
-																				}
-																				else
-																				{
-																					$('#'+value['id']+'found').attr('src', '/plugins/<!--$psubfolder-->/ico_online'+value['found']+'.svg');
-																					tag_rssi(value['id'],value['rssi']);
-																				}
-																			});
-																			if (at_least_one == 0)
-																			{
-																				if ( firstrun == 0 )
-																				{
-																					Scan_no_results('Search completed','<table height=\'75px\'><tr><td><img src=\'/plugins/<!--$psubfolder-->/no_tags.png\'></td><td>&nbsp;</td><td valign=center>No unknown Bluetooth-Tags found.</td></tr></table>');
-																				}
-																				else
-																				{
-																						firstrun = 0;
-																				}
-																			}
-																			$('#btnscan').text( 'Refresh the status and search for currently unknown Tags' );
-																		}
-																		refresh_strings();
-																	});
-																	">Refresh the status and search for currently unknown Tags</a>
-																</td>
-																<td>
-																	<a style="width:150px;" id="btnlog" data-icon="arrow-d" data-role="button" data-mini="true" target="log" href="/plugins/<!--$psubfolder-->/?mode=download_logfile">Logdatei herunterladen</a>
-																</td>
-															</tr>
-														</table>
+																"><!--$TXT_UPDATE_STATUS_SEARCH_NEW--></a>
+															</td>
+															<td>
+																<a style="width:150px;" id="btnlog" data-icon="arrow-d" data-role="button" data-mini="true" target="log" href="/plugins/<!--$psubfolder-->/?mode=download_logfile"><!--$TXT_DOWNLOAD_LOGFILE--></a>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</table>
+									</center>
+									<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
+										<input type="hidden" name="saveformdata" value="1">
+										<input type="hidden" name="miniservers" value="<!--$miniservers-->">
+										<div class="form-group">
+											<table class="formtable" border="0" width="100%">
+												<tr>
+													<td width="20%">
+														&nbsp;
+													</td>
+													<td width="50%">
+														<div style="cursor:default; id="tag_div">
+															<fieldset id="tags">
+																<legend id="configured_tags"><B><!--$configured_tags--></B></legend>
+																<!--$tag_select-->
+															</fieldset>
+														</div>
+													</td>
+													<td width="20%">
+														&nbsp;
+													</td>
+												</tr>
+												<tr>
+													<td width="20%">
+														&nbsp;
+													</td>
+													<td align="right" width="50%">
+														<span style="cursor:default;" width=100% align=right><i><small><font color="#808080"><span id="mark_tag_hint"><!--$TXT_MARK_TAG_HINT--></span></font></small><i></span>
+													</td>
+													<td width="20%">
+														&nbsp;
+													</td>
+												</tr>
+												<tr>
+													<td></td>
+													<td colspan=3>
+														<div id="form-error-message" class="form-error-message">&nbsp;</div>
 													</td>
 												</tr>
 											</table>
+										</div>
+									</form>
+									<p>
+										<center>
+											<a id="btncancel" data-role="button" data-inline="true" data-mini="true" data-icon="delete" href="/admin/index.cgi"><!--$TXT_CANCEL--></a>
+											<button type="submit" form="main_form" id="btnsubmit" data-role="button" data-inline="true" data-mini="true" data-icon="check"><!--$TXT_SAVE--></button>
 										</center>
-										<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
-											<input type="hidden" name="saveformdata" value="1">
-											<input type="hidden" name="miniservers" value="<!--$miniservers-->">
-											<div class="form-group">
-												<table class="formtable" border="0" width="100%">
-													<tr>
-														<td width="20%">
-															&nbsp;
-														</td>
-														<td width="50%">
-															<div style="cursor:default; id="tag_div">
-																<fieldset id="tags">
-																	<legend id="configured_tags"><B><!--$configured_tags--></B></legend>
-																	<!--$tag_select-->
-																</fieldset>
-															</div>
-														</td>
-														<td width="20%">
-															&nbsp;
-														</td>
-													</tr>
-													<tr>
-														<td width="20%">
-															&nbsp;
-														</td>
-														<td align="right" width="50%">
-															<span style="cursor:default;" width=100% align=right><i><small><font color="#808080"><span id="mark_tag_hint"><!--$mark_tag_hint--></span></font></small><i></span>
-														</td>
-														<td width="20%">
-															&nbsp;
-														</td>
-													</tr>
-													<tr>
-														<td></td>
-														<td colspan=3>
-															<div id="form-error-message" class="form-error-message">&nbsp;</div>
-														</td>
-													</tr>
-												</table>
-											</div>
-										</form>
-										<p>
-											<center>
-												<a id="btncancel" data-role="button" data-inline="true" data-mini="true" data-icon="delete" href="/admin/index.cgi">Cancel</a>
-												<button type="submit" form="main_form" id="btnsubmit" data-role="button" data-inline="true" data-mini="true" data-icon="check">Save</button>
-											</center>
-										</p>
-										<script>
-											var $messages = $('#form-error-message');
-											$messages.fadeOut(1);
-											$.validate(
-											{
-												modules : 'security',
-												errorMessagePosition : $messages,
-											});
-											$( document ).ready(function()
-											{
-												$('#btnscan').trigger('click');
-											});
-										</script>
-	
+									</p>
+									<script>
+										var $messages = $('#form-error-message');
+										$messages.fadeOut(1);
+										$.validate(
+										{
+											modules : 'security',
+											errorMessagePosition : $messages,
+										});
+										$( document ).ready(function()
+										{
+											$('#btnscan').trigger('click');
+										});
+									</script>
