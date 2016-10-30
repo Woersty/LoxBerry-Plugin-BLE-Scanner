@@ -1,8 +1,8 @@
 <?php
 // LoxBerry BLE Scanner Plugin
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 1.9
-// 30.10.2016 21:50:54
+// Version 0.14
+// 30.10.2016 22:51:34
 
 // Configuration parameters
 $psubdir          =array_pop(array_filter(explode('/',pathinfo($_SERVER["SCRIPT_FILENAME"],PATHINFO_DIRNAME))));
@@ -81,8 +81,15 @@ else
   fclose($client);
 }
 
+// If no result, abort
+if (!isset($tags_scanned) || $tags_scanned == "null")
+{
+  error_log( date('Y-m-d H:i:s ')."Error, got no results.", 3, $logfile);
+  die(json_encode($tags_scanned));
+}
+
 // If result contain error, abort
-if (isset($tags_scanned['error']))
+if (isset($tags_scanned['error']) )
 {
   error_log( date('Y-m-d H:i:s ').$tags_scanned['error']." ".$tags_scanned['result'], 3, $logfile);
   die(json_encode($tags_scanned));
