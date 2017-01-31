@@ -87,7 +87,7 @@ our @language_strings;
 ##########################################################################
 
 # Version of this script
-$version = "0.11";
+$version = "0.16";
 
 
 # Figure out in which subfolder we are installed

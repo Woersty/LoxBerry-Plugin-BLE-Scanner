@@ -1,6 +1,7 @@
 # BLE iBeaconScanner git@loxberry.woerstenfeld.de
 # For LoxBerry BLE-Scanner
-# 30.08.2016 18:16:51
+# 31.01.2017 19:43:58
+# v0.16
 # based on several other projects like
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
@@ -91,7 +92,7 @@ def hci_le_set_scan_parameters(sock, loop_count=10):
     OWN_TYPE = SCAN_RANDOM
     SCAN_TYPE = 0x01
 
-def parse_events(sock, loop_count=100):
+def parse_events(sock, loop_count=10):
     old_filter = sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
     # perform a device inquiry on bluetooth device #0
@@ -105,11 +106,17 @@ def parse_events(sock, loop_count=100):
     done = False
     results = []
     myFullList = []
+
     for i in range(0, loop_count):
-        pkt = sock.recv(255)
+        try:
+                sock.settimeout(5)
+                pkt = sock.recv(255)
+        except:
+                # print 'No TAGs found before 5s timeout'
+                sys.exit(0)                
         ptype, event, plen = struct.unpack("BBB", pkt[:3])
         if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
-		i =0
+                i =0
         elif event == bluez.EVT_NUM_COMP_PKTS:
                 i =0 
         elif event == bluez.EVT_DISCONN_COMPLETE:

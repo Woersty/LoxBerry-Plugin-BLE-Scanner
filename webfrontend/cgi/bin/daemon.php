@@ -1,8 +1,8 @@
 <?php
 // LoxBerry BLE Scanner Plugin Daemon
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 0.15
-// 18.11.2016 20:38:25
+// Version 0.16
+// 31.01.2017 19:43:52
 
 // Configuration
 $ble_scan         = dirname(__FILE__)."/blescan.py";
