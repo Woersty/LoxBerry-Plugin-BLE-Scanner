@@ -16,8 +16,8 @@ PATH=$PATH.":REPLACEBYBASEFOLDER/sbin"
 
 ### END INIT INFO
 
-# Version 1.1
-# 09.09.2016 21:24:51
+# Version 0.18
+# 02.03.2017 20:27:09
 
 case "${1:-''}" in
   'stop')
@@ -43,6 +43,13 @@ case "${1:-''}" in
         exit 0
         ;;
     *)
+        echo "`date` - Create link from ttyAMA0 to serial1... "
+        echo 'KERNEL=="ttyAMA0",SYMLINK+="serial1" GROUP="dialout"' >/etc/udev/rules.d/99-REPLACEBYSUBFOLDER.rules
+        echo "`date` - Reload rules... "
+        udevadm control --reload-rules
+        udevadm trigger
+        echo "`date` - Restart Bluetooth... "
+        systemctl -l restart hciuart.service
         if [ -r /etc/rsyslog.d/99-BLE-Scanner.conf ]
         then
           log_daemon_msg "Update remove syslog errors rule but not restarting syslog" "OK\n"
