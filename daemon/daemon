@@ -16,8 +16,8 @@ PATH=$PATH.":REPLACEBYBASEFOLDER/sbin"
 
 ### END INIT INFO
 
-# Version 0.18
-# 02.03.2017 20:27:09
+# Version 0.19
+# 06.03.2017 21:20:14
 
 case "${1:-''}" in
   'stop')
@@ -43,68 +43,107 @@ case "${1:-''}" in
         exit 0
         ;;
     *)
-        echo "`date` - Create link from ttyAMA0 to serial1... "
-        echo 'KERNEL=="ttyAMA0",SYMLINK+="serial1" GROUP="dialout"' >/etc/udev/rules.d/99-REPLACEBYSUBFOLDER.rules
-        echo "`date` - Reload rules... "
-        udevadm control --reload-rules
-        udevadm trigger
-        echo "`date` - Restart Bluetooth... "
-        systemctl -l restart hciuart.service
-        if [ -r /etc/rsyslog.d/99-BLE-Scanner.conf ]
-        then
-          log_daemon_msg "Update remove syslog errors rule but not restarting syslog" "OK\n"
-          echo ':msg,contains,"advertising data length corrected" ~' > /etc/rsyslog.d/99-BLE-Scanner.conf
-          echo ':msg,contains,"bt_err_ratelimited:" ~'              >> /etc/rsyslog.d/99-BLE-Scanner.conf
-        else
-          log_daemon_msg "Create remove syslog errors rule + restart syslog" "OK\n"
-          echo ':msg,contains,"advertising data length corrected" ~' > /etc/rsyslog.d/99-BLE-Scanner.conf
-          echo ':msg,contains,"bt_err_ratelimited:" ~'              >> /etc/rsyslog.d/99-BLE-Scanner.conf
-          service rsyslog restart
-        fi
+        logfile="REPLACEBYBASEFOLDER/log/plugins/REPLACEBYSUBFOLDER/BLE-Scanner.log"
         output=$( pgrep -f "/usr/bin/php -f REPLACEBYBASEFOLDER/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php" )
         if [ $? -eq 1 ]
         then
+          if [ -r /etc/rsyslog.d/99-BLE-Scanner.conf ]
+          then
+            echo "`date` - Update remove syslog errors rule but not restarting syslog"                                       >>$logfile 2>&1
+            log_daemon_msg "Update remove syslog errors rule but not restarting syslog" "OK\n"
+            echo ':msg,contains,"advertising data length corrected" ~' > /etc/rsyslog.d/99-BLE-Scanner.conf
+            echo ':msg,contains,"bt_err_ratelimited:" ~'              >> /etc/rsyslog.d/99-BLE-Scanner.conf
+          else
+            echo "`date` - Create remove syslog errors rule + restart syslog"                                                >>$logfile 2>&1
+            log_daemon_msg "Create remove syslog errors rule + restart syslog" "OK\n"
+            echo ':msg,contains,"advertising data length corrected" ~' > /etc/rsyslog.d/99-BLE-Scanner.conf
+            echo ':msg,contains,"bt_err_ratelimited:" ~'              >> /etc/rsyslog.d/99-BLE-Scanner.conf
+            service rsyslog restart                                                                                          >>$logfile 2>&1
+          fi
+          echo "`date` - Create link from ttyAMA0 to serial1... "                                                            >>$logfile 2>&1
+          echo 'KERNEL=="ttyAMA0",SYMLINK+="serial1" GROUP="dialout"' |tee /etc/udev/rules.d/99-REPLACEBYSUBFOLDER.rules     >>$logfile 2>&1
+          echo "`date` - Reload rules... "                                                                                   >>$logfile 2>&1
+          udevadm control --reload-rules                                                                                     >>$logfile 2>&1
+          echo "`date` - Trigger rules... "                                                                                  >>$logfile 2>&1
+          udevadm trigger                                                                                                    >>$logfile 2>&1
+          echo "`date` - Restart Bluetooth... "                                                                              >>$logfile 2>&1
+          systemctl stop  hciuart.service                                                                                    >>$logfile 2>&1
+          systemctl start hciuart.service                                                                                    >>$logfile 2>&1
+          if [ $? -eq 1 ]
+          then
+            systemctl status hciuart.service                                                                                 >>$logfile 2>&1
+            echo "`date` - Error during start of hciuart service - try again"                                                >>$logfile 2>&1
+            systemctl stop hciuart.service                                                                                   >>$logfile 2>&1
+            systemctl start hciuart.service                                                                                  >>$logfile 2>&1
+            if [ $? -eq 1 ]
+            then
+              systemctl status hciuart.service                                                                               >>$logfile 2>&1
+              echo "`date` - Error during 2nd start of hciuart service - try again "                                         >>$logfile 2>&1
+              systemctl stop hciuart.service                                                                                 >>$logfile 2>&1
+              systemctl start hciuart.service                                                                                >>$logfile 2>&1
+              if [ $? -eq 1 ]
+              then
+                systemctl status hciuart.service                                                                             >>$logfile 2>&1
+                echo "`date` - Error during 3rd start of hciuart service - giving up"                                        >>$logfile 2>&1
+                log_failure_msg "Error during start of bluetooth interface hci0 - please check"
+                exit 1
+              fi
+            fi
+          fi
+          echo "`date` - Successful start of hciuart service"                                                                >>$logfile 2>&1
+          systemctl status hciuart.service                                                                                   >>$logfile 2>&1
           # Start daemon
           log_action_msg "Try to start BLE-Scanner daemon"
           # Now start the daemon
             if [ -x /bin/hciconfig ]
             then
-              /bin/hciconfig hci0 up
+              /bin/hciconfig hci0 up                                                                                         >>$logfile 2>&1
               if [ $? -eq 1 ]
               then
-                log_failure_msg "Error during start of bluetooth interface hci0 - please check"
-                exit 1
-              else
-                if [ -x /usr/bin/php ]
+                echo "`date` - Error during start of bluetooth interface hci0 - retry "                                      >>$logfile 2>&1
+                /bin/hciconfig hci0 up                                                                                       >>$logfile 2>&1
+                if [ $? -eq 1 ]
                 then
-                  if [ -x /usr/bin/python ]
-                  then
-                    output=$( /usr/bin/php -f REPLACEBYBASEFOLDER/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php >/dev/null 2>&1 & )
-                    output=$( pgrep -f "/usr/bin/php -f REPLACEBYBASEFOLDER/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php" )
-                    if [ $? -eq 1 ]
-                    then
-                      log_failure_msg "BLE-Scanner Daemon NOT started"
-                      exit 1
-                    else
-                      log_daemon_msg "BLE-Scanner Daemon started" "OK"
-                      log_end_msg 0
-                      exit 0
-                    fi
-                   else
-                    log_failure_msg "Python not found"
-                    exit 1
-                   fi
-                else
-                  log_failure_msg "PHP not found"
+                echo "`date` - Error during 2nd start of bluetooth interface hci0 - retry "                                  >>$logfile 2>&1
+                  log_failure_msg "Error during 2nd start of bluetooth interface hci0 - please check"
                   exit 1
                 fi
               fi
+              if [ -x /usr/bin/php ]
+              then
+                if [ -x /usr/bin/python ]
+                then
+                  output=$( /usr/bin/php -f REPLACEBYBASEFOLDER/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php >/dev/null 2>&1 & )
+                  output=$( pgrep -f "/usr/bin/php -f REPLACEBYBASEFOLDER/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php" )
+                  if [ $? -eq 1 ]
+                  then
+                    echo "`date` - BLE-Scanner Daemon NOT started"                                                           >>$logfile 2>&1
+                    log_failure_msg "BLE-Scanner Daemon NOT started"
+                    exit 1
+                  else
+                    echo "`date` - BLE-Scanner Daemon started"                                                               >>$logfile 2>&1
+                    log_daemon_msg "BLE-Scanner Daemon started" "OK"
+                    log_end_msg 0
+                    exit 0
+                  fi
+                 else
+                    echo "`date` - Python not found"                                                                         >>$logfile 2>&1
+                  log_failure_msg "Python not found"
+                  exit 1
+                 fi
+              else
+                echo "`date` - PHP not found"                                                                                >>$logfile 2>&1
+                log_failure_msg "PHP not found"
+                exit 1
+              fi
             else
+                echo "`date` - Starting Bluetooth interface using 'hciconfig' failed"                                        >>$logfile 2>&1
               log_failure_msg "Starting Bluetooth interface using 'hciconfig' failed"
               exit 1
             fi
         else
-          log_failure_msg "Already running with PID `echo -n $output` - please use stop first"
+          echo "`date` - BLE-Scanner PHP-Daemon already running with PID `echo -n $output` - please use stop first"          >>$logfile 2>&1
+          log_failure_msg "BLE-Scanner PHP-Daemon already running with PID `echo -n $output` - please use stop first"
           exit 1
         fi
         exit 1
