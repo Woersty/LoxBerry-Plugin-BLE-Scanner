@@ -1,7 +1,7 @@
 # BLE iBeaconScanner git@loxberry.woerstenfeld.de
 # For LoxBerry BLE-Scanner
-# 31.01.2017 19:43:58
-# v0.16
+# 10.04.2017 18:13:52
+# v0.20
 # based on several other projects like
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
@@ -180,7 +180,7 @@ except:
 blescan.hci_le_set_scan_parameters(sock)
 blescan.hci_enable_le_scan(sock)
 
-returnedList = blescan.parse_events(sock, 10)
+returnedList = blescan.parse_events(sock, 100)
 mac_addr_list = []
 for beacon in returnedList:
    signal = beacon.split(',')[len(beacon.split(','))-1]
