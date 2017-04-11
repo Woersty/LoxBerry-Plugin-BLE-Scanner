@@ -1,7 +1,7 @@
 # BLE iBeaconScanner git@loxberry.woerstenfeld.de
 # For LoxBerry BLE-Scanner
-# 10.04.2017 18:13:52
-# v0.20
+# 11.04.2017 19:50:33
+# v0.21
 # based on several other projects like
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
@@ -85,14 +85,14 @@ def hci_toggle_le_scan(sock, enable):
     cmd_pkt = struct.pack("<BB", enable, 0x00)
     bluez.hci_send_cmd(sock, OGF_LE_CTL, OCF_LE_SET_SCAN_ENABLE, cmd_pkt)
 
-def hci_le_set_scan_parameters(sock, loop_count=10):
+def hci_le_set_scan_parameters(sock, loop_count=2):
     old_filter = sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
     SCAN_RANDOM = 0x01
     OWN_TYPE = SCAN_RANDOM
     SCAN_TYPE = 0x01
 
-def parse_events(sock, loop_count=10):
+def parse_events(sock, loop_count=2):
     old_filter = sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
     # perform a device inquiry on bluetooth device #0
@@ -109,7 +109,7 @@ def parse_events(sock, loop_count=10):
 
     for i in range(0, loop_count):
         try:
-                sock.settimeout(5)
+                sock.settimeout(3)
                 pkt = sock.recv(255)
         except:
                 # print 'No TAGs found before 5s timeout'
@@ -180,7 +180,7 @@ except:
 blescan.hci_le_set_scan_parameters(sock)
 blescan.hci_enable_le_scan(sock)
 
-returnedList = blescan.parse_events(sock, 100)
+returnedList = blescan.parse_events(sock, 25)
 mac_addr_list = []
 for beacon in returnedList:
    signal = beacon.split(',')[len(beacon.split(','))-1]
