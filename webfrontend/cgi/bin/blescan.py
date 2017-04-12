@@ -1,7 +1,7 @@
 # BLE iBeaconScanner git@loxberry.woerstenfeld.de
 # For LoxBerry BLE-Scanner
-# 11.04.2017 19:50:33
-# v0.21
+# 12.04.2017 08:42:15
+# v0.22
 # based on several other projects like
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
@@ -85,14 +85,14 @@ def hci_toggle_le_scan(sock, enable):
     cmd_pkt = struct.pack("<BB", enable, 0x00)
     bluez.hci_send_cmd(sock, OGF_LE_CTL, OCF_LE_SET_SCAN_ENABLE, cmd_pkt)
 
-def hci_le_set_scan_parameters(sock, loop_count=2):
+def hci_le_set_scan_parameters(sock, loop_count=10):
     old_filter = sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
     SCAN_RANDOM = 0x01
     OWN_TYPE = SCAN_RANDOM
     SCAN_TYPE = 0x01
 
-def parse_events(sock, loop_count=2):
+def parse_events(sock, loop_count=10):
     old_filter = sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
     # perform a device inquiry on bluetooth device #0
@@ -133,7 +133,7 @@ def parse_events(sock, loop_count=2):
 		
 		    if (DEBUG == True):
 			print "-------------"
-                    	#print "\tfullpacket: ", printpacket(pkt)
+		    	print "\tfullpacket: ", printpacket(pkt)
 		    	print "\tUDID: ", printpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6])
 		    	print "\tMAJOR: ", printpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4])
 		    	print "\tMINOR: ", printpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2])
@@ -177,10 +177,10 @@ except:
     	sys.exit(1)
 
 
-blescan.hci_le_set_scan_parameters(sock)
+blescan.hci_le_set_scan_parameters(sock, 10)
 blescan.hci_enable_le_scan(sock)
 
-returnedList = blescan.parse_events(sock, 25)
+returnedList = blescan.parse_events(sock, 10)
 mac_addr_list = []
 for beacon in returnedList:
    signal = beacon.split(',')[len(beacon.split(','))-1]
@@ -193,4 +193,5 @@ for beacon in returnedList:
 
 for beacon in mac_addr_list:
   print(beacon)
+  
 sys.exit(0)
