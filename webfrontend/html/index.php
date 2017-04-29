@@ -1,8 +1,8 @@
 <?php
 // LoxBerry BLE Scanner Plugin
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 0.16
-// 31.01.2017 19:42:37
+// Version 0.23
+// 29.04.2017 07:43:20
 
 // Configuration parameters
 $psubdir          =array_pop(array_filter(explode('/',pathinfo($_SERVER["SCRIPT_FILENAME"],PATHINFO_DIRNAME))));
@@ -18,7 +18,8 @@ $daemon_addr      ="127.0.0.1";
 $daemon_port      ="12345";
 
 // Enable logging
-ini_set("error_log", $logfile);
+$debug                =0;
+ini_set("error_log",  $logfile);
 ini_set("log_errors", 1);
 
 // Defaults for inexistent variables
@@ -87,20 +88,28 @@ if (isset($tags_scanned['error']) )
   error_log( date('Y-m-d H:i:s ').$tags_scanned['error']." ".$tags_scanned['result'], 3, $logfile);
   die(json_encode($tags_scanned));
 }
-
 // Tag-MACs all uppercase and sort
-$tags_scanned = array_map('strtoupper', array_unique($tags_scanned,SORT_STRING));
-
-// Tag-MACs add prefix
-$tags_scanned= array_map('convert_tag_format', $tags_scanned);
-$tags_found=[];
-$iterator=0;
-foreach ($tags_scanned as $tags_scanned_line)
+if ( is_array($tags_scanned) )
 {
+  if ( $debug == 1 ) error_log( date('Y-m-d H:i:s ')."tags_scanned = ".serialize($tags_scanned)."\n", 3, $logfile);
+  $tags_scanned = array_map('strtoupper', array_unique($tags_scanned,SORT_STRING));
+  // Tag-MACs add prefix
+  $tags_scanned= array_map('convert_tag_format', $tags_scanned);
+  $tags_found=[];
+  $iterator=0;
+  foreach ($tags_scanned as $tags_scanned_line)
+  {
     $mac_rssi  = explode(";",$tags_scanned_line);
     $tags_found[$iterator]['mac']  = $mac_rssi[0];
     $tags_found[$iterator]['rssi'] = $mac_rssi[1];
     $iterator++;
+  }
+}
+else
+{
+  if ( $debug == 1 ) error_log( date('Y-m-d H:i:s ')."tags_scanned = none\n", 3, $logfile);
+  $tags_scanned = [];
+  $tags_found=[];
 }
 ############### Main ##############
 
