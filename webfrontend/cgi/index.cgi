@@ -81,13 +81,14 @@ our $ms_disabled;
 our $miniserver_data;
 our $ms_display_name;
 our @language_strings;
+our $loxberry_id;
 
 ##########################################################################
 # Read Settings
 ##########################################################################
 
 # Version of this script
-$version = "0.16";
+$version = "0.17";
 
 
 # Figure out in which subfolder we are installed
@@ -121,6 +122,11 @@ foreach (sort keys %Config)
       
       # Put the current Tag info into the @known_tags array (MAC, Used, Miniservers, Comment and rest of the line)
 	 		push (@known_tags, [ shift @tag_cfg_data, shift @tag_cfg_data, shift @tag_cfg_data, join(" ", @tag_cfg_data)]); 
+	 }
+	 elsif ( substr($_, 0, 19) eq "default.LOXBERRY_ID" ) 
+	 {
+	 		# LoxBerry ID (If configured, added before TAG-ID)
+	 		$loxberry_id		= $Config{$_};
 	 }
 
 }
@@ -329,6 +335,7 @@ if ( !$query{'do'} )           { if ( param('do')           ) { $do           = 
 		}
 		
 		# Parse page
+
 		open(F,"$installfolder/templates/plugins/$psubfolder/$lang/settings.html") || die "Missing template plugins/$psubfolder/$lang/settings.html";
 		while (<F>) 
 		{
@@ -353,6 +360,7 @@ if ( !$query{'do'} )           { if ( param('do')           ) { $do           = 
 		@config_params = param; 
 		our $save_config = 0;
 		our $tag_id = 1;
+		$plugin_cfg->delete("default.LOXBERRY_ID"); 
 		for my $tag_number (0 .. 256)
 		{
 			$plugin_cfg->delete("default.TAG$tag_number"); 
@@ -375,6 +383,10 @@ if ( !$query{'do'} )           { if ( param('do')           ) { $do           = 
 					$miniserver_data = substr ($miniserver_data ,0, -1);
 					$plugin_cfg->param("default.TAG$tag_id", $config_params[$config_id].':'.param($config_params[$config_id]).':'.$miniserver_data.':'.param(('comment'.$config_params[$config_id])));
 					$tag_id ++;
+		 		}
+		 		elsif (param('loxberry_id'))
+		 		{
+		 			$plugin_cfg->param("default.LOXBERRY_ID", param('loxberry_id')); 
 		 		}
 			}
 			$config_id ++;

@@ -16,6 +16,7 @@ $tags_known       =array();
 $error            =array();
 $daemon_addr      ="127.0.0.1";
 $daemon_port      ="12345";
+$loxberry_id			="";
 
 // Enable logging
 $debug                =0;
@@ -157,7 +158,15 @@ else
     {
       $configured_tags[]=$line;
     }
+		elseif (substr($line,0,11) == "LOXBERRY_ID")
+		{
+			$loxberry_id = substr($line,12);
+		}
   }
+  // No Line breaks
+  $loxberry_id = preg_replace("/\r|\n/", "", $loxberry_id);
+  // No Spaces allowed, replace by underscores
+  $loxberry_id = preg_replace("/\s+/", "_", $loxberry_id);
 
   // Go through all configured Tags
   if (isset($configured_tags))
@@ -228,9 +237,8 @@ else
                 $LoxUser      = $ms_cfg_array['MINISERVER'.$current_ms[0]]['ADMIN'];
                 $LoxPassword  = $ms_cfg_array['MINISERVER'.$current_ms[0]]['PASS'];
                 // If found during scan, set to 1, else to 0 in Virtual Input for Miniserver
-                $LoxURL  = $LoxHost.':'.$LoxPort.'/dev/sps/io/'.$tags_known["TAG$current_tag"]['id'].'/'.$tags_known["TAG$current_tag"]['found'];
+                $LoxURL  = $LoxHost.':'.$LoxPort.'/dev/sps/io/'.$loxberry_id.$tags_known["TAG$current_tag"]['id'].'/'.$tags_known["TAG$current_tag"]['found'];
                 $LoxLink = fopen('http://'.$LoxUser.':'.$LoxPassword.'@'.$LoxURL, "r");
-
                 if (!$LoxLink)
                 {
                   error_log( date('Y-m-d H:i:s ')."Can not sent Data to Miniserver! Unable to open http://xxx:xxx@".$LoxURL." [".$_SERVER["HTTP_REFERER"]."]\n", 3, $logfile);
