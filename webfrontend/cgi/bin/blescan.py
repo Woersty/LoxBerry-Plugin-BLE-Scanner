@@ -1,7 +1,7 @@
 # BLE iBeaconScanner git@loxberry.woerstenfeld.de
 # For LoxBerry BLE-Scanner
-# 12.04.2017 08:42:15
-# v0.22
+# 08.11.2017 22:18:25
+# v0.23b
 # based on several other projects like
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
@@ -18,6 +18,7 @@ DEBUG = False
 import os
 import sys
 import struct
+import time
 import bluetooth._bluetooth as bluez
 
 LE_META_EVENT = 0x3e
@@ -76,7 +77,11 @@ def packed_bdaddr_to_string(bdaddr_packed):
     return ':'.join('%02x'%i for i in struct.unpack("<BBBBBB", bdaddr_packed[::-1]))
 
 def hci_enable_le_scan(sock):
-    hci_toggle_le_scan(sock, 0x01)
+    try:
+			hci_toggle_le_scan(sock, 0x01)
+    except:
+			print 'Error: Start le_scan failed -> hci Interface up? Check with "hciconfig"'
+			sys.exit(1)
 
 def hci_disable_le_scan(sock):
     hci_toggle_le_scan(sock, 0x00)
@@ -85,7 +90,7 @@ def hci_toggle_le_scan(sock, enable):
     cmd_pkt = struct.pack("<BB", enable, 0x00)
     bluez.hci_send_cmd(sock, OGF_LE_CTL, OCF_LE_SET_SCAN_ENABLE, cmd_pkt)
 
-def hci_le_set_scan_parameters(sock, loop_count=10):
+def hci_le_set_scan_parameters(sock, loop_count=3):
     old_filter = sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
     SCAN_RANDOM = 0x01
@@ -109,11 +114,11 @@ def parse_events(sock, loop_count=10):
 
     for i in range(0, loop_count):
         try:
-                sock.settimeout(3)
+                sock.settimeout(5)
                 pkt = sock.recv(255)
         except:
-                # print 'No TAGs found before 5s timeout'
-                sys.exit(0)                
+                timeout_raised=1
+                #print ''#'Error: 4s timeout'
         ptype, event, plen = struct.unpack("BBB", pkt[:3])
         if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
                 i =0
@@ -132,18 +137,18 @@ def parse_events(sock, loop_count=10):
                 for i in range(0, num_reports):
 		
 		    if (DEBUG == True):
-			print "-------------"
-		    	print "\tfullpacket: ", printpacket(pkt)
-		    	print "\tUDID: ", printpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6])
-		    	print "\tMAJOR: ", printpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4])
-		    	print "\tMINOR: ", printpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2])
-                    	print "\tMAC address: ", packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
+			print "\t~----------------------------------------------------------"
+		    	#print "\tfullpacket: ", printpacket(pkt)
+		    	print "\t~UDID: ", printpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6])
+		    	#print "\tMAJOR: ", printpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4])
+		    	#print "\tMINOR: ", printpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2])
+                    	print "\t~MAC address: ", packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
 		    	# commented out - don't know what this byte is.  It's NOT TXPower
                     	txpower, = struct.unpack("b", pkt[report_pkt_offset -2])
-                    	print "\t(Unknown):", txpower
+           #         	print "\t(Unknown):", txpower
 	
                     	rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
-                    	print "\tRSSI:", rssi
+                    	print "\t~RSSI:", rssi
 		    # build the return string
                     Adstring = packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
 		    Adstring += ","
@@ -173,15 +178,14 @@ try:
 	sock = bluez.hci_open_dev(dev_id)
 
 except:
-	print "Error accessing bluetooth device..."
+	print "Error: Cannot access bluetooth device..."
     	sys.exit(1)
-
 
 blescan.hci_le_set_scan_parameters(sock, 10)
 blescan.hci_enable_le_scan(sock)
-
-returnedList = blescan.parse_events(sock, 10)
+returnedList = blescan.parse_events(sock, 20)
 mac_addr_list = []
+
 for beacon in returnedList:
    signal = beacon.split(',')[len(beacon.split(','))-1]
    if signal != "00":
@@ -191,7 +195,31 @@ for beacon in returnedList:
 			newbeacon = beacon.split(',')[0]+";"+beacon.split(',')[len(beacon.split(','))-1]
 			mac_addr_list.append(newbeacon)
 
-for beacon in mac_addr_list:
-  print(beacon)
-  
-sys.exit(0)
+if len(mac_addr_list) > 0:
+	mac_addr_list.sort()
+	for beacon in mac_addr_list:
+ 		print(beacon)
+	sys.exit(0)	
+
+returnedList  = "";
+returnedList  = blescan.parse_events(sock, 20)
+
+for beacon in returnedList:
+   signal = beacon.split(',')[len(beacon.split(','))-1]
+   if signal != "00":
+     if any(beacon.split(',')[0] in s for s in mac_addr_list):
+			pass
+     else:
+			newbeacon = beacon.split(',')[0]+";"+beacon.split(',')[len(beacon.split(','))-1]
+			mac_addr_list.append(newbeacon)
+
+
+if len(mac_addr_list) > 0:
+	mac_addr_list.sort()
+	for beacon in mac_addr_list:
+ 		print(beacon)
+	sys.exit(0)	
+else:
+  print("Error: Nothing found after 2 scans, giving up...")
+
+sys.exit(0)	
