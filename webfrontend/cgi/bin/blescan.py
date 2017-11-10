@@ -1,7 +1,7 @@
 # BLE iBeaconScanner git@loxberry.woerstenfeld.de
 # For LoxBerry BLE-Scanner
-# 08.11.2017 22:18:25
-# v0.23b
+# 10.11.2017 22:53:00
+# v0.24
 # based on several other projects like
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
@@ -138,14 +138,9 @@ def parse_events(sock, loop_count=10):
 		
 		    if (DEBUG == True):
 			print "\t~----------------------------------------------------------"
-		    	#print "\tfullpacket: ", printpacket(pkt)
 		    	print "\t~UDID: ", printpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6])
-		    	#print "\tMAJOR: ", printpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4])
-		    	#print "\tMINOR: ", printpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2])
                     	print "\t~MAC address: ", packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
-		    	# commented out - don't know what this byte is.  It's NOT TXPower
                     	txpower, = struct.unpack("b", pkt[report_pkt_offset -2])
-           #         	print "\t(Unknown):", txpower
 	
                     	rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
                     	print "\t~RSSI:", rssi
@@ -162,7 +157,6 @@ def parse_events(sock, loop_count=10):
 		    Adstring += ","
 		    Adstring += "%i" % struct.unpack("b", pkt[report_pkt_offset -1])
 
-		    #print "\tAdstring=", Adstring
  		    myFullList.append(Adstring)
                 done = True
     sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
