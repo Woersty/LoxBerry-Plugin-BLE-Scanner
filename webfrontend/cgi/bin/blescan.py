@@ -1,7 +1,7 @@
 # BLE iBeaconScanner git@loxberry.woerstenfeld.de
 # For LoxBerry BLE-Scanner
-# 10.11.2017 22:53:00
-# v0.24
+# 20.11.2017 19:23:19
+# v0.24a
 # based on several other projects like
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
@@ -46,6 +46,8 @@ ADV_SCAN_IND=0x02
 ADV_NONCONN_IND=0x03
 ADV_SCAN_RSP=0x04
 
+global pkt
+pkt = ""
 
 def returnnumberpacket(pkt):
     myInteger = 0
@@ -118,7 +120,7 @@ def parse_events(sock, loop_count=10):
                 pkt = sock.recv(255)
         except:
                 timeout_raised=1
-                #print ''#'Error: 4s timeout'
+                pkt = ""
         ptype, event, plen = struct.unpack("BBB", pkt[:3])
         if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
                 i =0
