@@ -1,7 +1,7 @@
 # BLE iBeaconScanner git@loxberry.woerstenfeld.de
 # For LoxBerry BLE-Scanner
-# 20.11.2017 19:23:19
-# v0.24a
+# 27.11.2017 21:22:56
+# v0.25
 # based on several other projects like
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
@@ -19,6 +19,7 @@ import os
 import sys
 import struct
 import time
+import datetime
 import bluetooth._bluetooth as bluez
 
 LE_META_EVENT = 0x3e
@@ -48,6 +49,9 @@ ADV_SCAN_RSP=0x04
 
 global pkt
 pkt = ""
+global logfile
+#logfile = "/opt/loxberry/log/plugins/ble_scanner/BLE-Scanner.log"
+logfile = "REPLACEBYBASEFOLDER/log/plugins/REPLACEBYSUBFOLDER/BLE-Scanner.log"
 
 def returnnumberpacket(pkt):
     myInteger = 0
@@ -82,6 +86,9 @@ def hci_enable_le_scan(sock):
     try:
 			hci_toggle_le_scan(sock, 0x01)
     except:
+			sys.stdout = open(logfile, "a")
+			print "Phyton: " + str(datetime.datetime.now()) + ' Error: Start le_scan failed -> hci Interface up? Check with "hciconfig"'
+			sys.stdout = sys.__stdout__
 			print 'Error: Start le_scan failed -> hci Interface up? Check with "hciconfig"'
 			sys.exit(1)
 
@@ -98,6 +105,16 @@ def hci_le_set_scan_parameters(sock, loop_count=3):
     SCAN_RANDOM = 0x01
     OWN_TYPE = SCAN_RANDOM
     SCAN_TYPE = 0x01
+
+def hexdump(src, length=16):
+		FILTER = ''.join([(len(repr(chr(x))) == 3) and chr(x) or '.' for x in range(256)])
+		lines = []
+		for c in xrange(0, len(src), length):
+			chars = src[c:c+length]
+			hex = ' '.join(["%02x" % ord(x) for x in chars])
+			printable = ''.join(["%s" % ((ord(x) <= 127 and FILTER[ord(x)]) or '.') for x in chars])
+			lines.append("%04x  %-*s  %s\n" % (c, length*3, hex, printable))
+		return ''.join(lines)
 
 def parse_events(sock, loop_count=10):
     old_filter = sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
@@ -121,6 +138,10 @@ def parse_events(sock, loop_count=10):
         except:
                 timeout_raised=1
                 pkt = ""
+                sys.stdout = open(logfile, "a")
+                print "Phyton: " + str(datetime.datetime.now()) + " Error: Timeout..."
+                sys.stdout = sys.__stdout__
+                break
         ptype, event, plen = struct.unpack("BBB", pkt[:3])
         if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
                 i =0
@@ -139,13 +160,14 @@ def parse_events(sock, loop_count=10):
                 for i in range(0, num_reports):
 		
 		    if (DEBUG == True):
-			print "\t~----------------------------------------------------------"
-		    	print "\t~UDID: ", printpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6])
-                    	print "\t~MAC address: ", packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
+                    	sys.stdout = open(logfile, "a")
+                    	print "Phyton: " + str(datetime.datetime.now()) + " -----------------------------------------\n" + hexdump( pkt )
+                    	print "MAC address: ", packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
                     	txpower, = struct.unpack("b", pkt[report_pkt_offset -2])
-	
                     	rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
-                    	print "\t~RSSI:", rssi
+                    	print "RSSI:", rssi 
+                    	print "Phyton: " + str(datetime.datetime.now()) + " -----------------------------------------" 
+                    	sys.stdout = sys.__stdout__
 		    # build the return string
                     Adstring = packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
 		    Adstring += ","
@@ -174,7 +196,10 @@ try:
 	sock = bluez.hci_open_dev(dev_id)
 
 except:
-	print "Error: Cannot access bluetooth device..."
+	sys.stdout = open(logfile , "a")
+	print "Phyton: " + str(datetime.datetime.now()) + " Error: Cannot access bluetooth device..."
+	sys.stdout = sys.__stdout__
+	print " Error: Cannot access bluetooth device..."
     	sys.exit(1)
 
 blescan.hci_le_set_scan_parameters(sock, 10)
@@ -194,6 +219,9 @@ for beacon in returnedList:
 if len(mac_addr_list) > 0:
 	mac_addr_list.sort()
 	for beacon in mac_addr_list:
+		sys.stdout = open(logfile, "a")
+ 		print "Phyton: " + str(datetime.datetime.now()) + " => " + beacon
+		sys.stdout = sys.__stdout__
  		print(beacon)
 	sys.exit(0)	
 
@@ -213,9 +241,15 @@ for beacon in returnedList:
 if len(mac_addr_list) > 0:
 	mac_addr_list.sort()
 	for beacon in mac_addr_list:
+		sys.stdout = open(logfile, "a")
+ 		print "Phyton: " + str(datetime.datetime.now()) + " => " + beacon
+		sys.stdout = sys.__stdout__
  		print(beacon)
 	sys.exit(0)	
 else:
-  print("Error: Nothing found after 2 scans, giving up...")
+	sys.stdout = open(logfile, "a")
+	print "Phyton: " + str(datetime.datetime.now()) + " Error: Nothing found after 2 scans, giving up..."
+	sys.stdout = sys.__stdout__
+	print("Error: Nothing found after 2 scans, giving up...")
 
 sys.exit(0)	

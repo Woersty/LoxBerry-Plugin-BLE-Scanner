@@ -15,11 +15,12 @@ ARGV2=$2 # Second argument is Plugin-Name for scipts etc.
 ARGV3=$3 # Third argument is Plugin installation folder
 ARGV5=$5 # Fifth argument is Base folder of LoxBerry
 
-/bin/sed -i "s#REPLACEBYSUBFOLDER#$ARGV3#" $ARGV5/config/plugins/$ARGV3/ble_scanner.cfg
-/bin/sed -i "s#REPLACEBYSUBFOLDER#$ARGV3#" $ARGV5/system/daemons/plugins/$ARGV2
+/bin/sed -i "s#REPLACEBYSUBFOLDER#$ARGV3#"  $ARGV5/config/plugins/$ARGV3/ble_scanner.cfg
+/bin/sed -i "s#REPLACEBYSUBFOLDER#$ARGV3#"  $ARGV5/system/daemons/plugins/$ARGV2
 /bin/sed -i "s#REPLACEBYBASEFOLDER#$ARGV5#" $ARGV5/system/daemons/plugins/$ARGV2
-/bin/sed -i "s#REPLACEBYNAME#$ARGV2#" $ARGV5/config/plugins/$ARGV3/ble_scanner.cfg
-
+/bin/sed -i "s#REPLACEBYNAME#$ARGV2#"       $ARGV5/config/plugins/$ARGV3/ble_scanner.cfg
+/bin/sed -i "s#REPLACEBYSUBFOLDER#$ARGV3#"  $ARGV5/webfrontend/cgi/plugins/$ARGV3/bin/blescan.py
+/bin/sed -i "s#REPLACEBYBASEFOLDER#$ARGV5#" $ARGV5/webfrontend/cgi/plugins/$ARGV3/bin/blescan.py
 
 echo "<INFO> ***************************************************************"
 echo "<INFO> * Please reboot your LoxBerry to start the BLE-Scanner Daemon *"

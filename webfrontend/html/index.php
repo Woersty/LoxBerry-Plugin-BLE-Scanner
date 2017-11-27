@@ -1,8 +1,8 @@
 <?php
 // LoxBerry BLE Scanner Plugin
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 0.24
-// 10.11.2017 22:51:46
+// Version 0.25
+// 27.11.2017 21:23:08
 
 // Configuration parameters
 $psubdir          =array_pop(array_filter(explode("/",pathinfo($_SERVER["SCRIPT_FILENAME"],PATHINFO_DIRNAME))));
@@ -227,6 +227,7 @@ else
                 }
                 else
                 {
+                	if ( $debug == 1 ) error_log( date("Y-m-d H:i:s ")."[LOG] $LoxURL\n", 3, $logfile);
                   fclose($LoxLink);
                 }
                 break;

@@ -16,5 +16,9 @@ cp -v -r /tmp/uploads/$ARGV1\_upgrade/log/$ARGV3/* $ARGV5/log/plugins/$ARGV3/
 echo "<INFO> Remove temporary folders"
 rm -r /tmp/uploads/$ARGV1\_upgrade
 
+echo "<INFO> Replace folders in $ARGV5/webfrontend/cgi/plugins/$ARGV3/bin/blescan.py "
+/bin/sed -i "s#REPLACEBYSUBFOLDER#$ARGV3#"  $ARGV5/webfrontend/cgi/plugins/$ARGV3/bin/blescan.py
+/bin/sed -i "s#REPLACEBYBASEFOLDER#$ARGV5#" $ARGV5/webfrontend/cgi/plugins/$ARGV3/bin/blescan.py
+
 # Exit with Status 0
 exit 0
