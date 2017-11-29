@@ -2,7 +2,7 @@
 // LoxBerry BLE Scanner Plugin Daemon
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
 // Version 0.30
-// 29.11.2017 14:53:17
+// 28.11.2017 23:49:15
 
 // Configuration
 $ble_scan         = dirname(__FILE__)."/blescan.py";
@@ -154,7 +154,8 @@ for (;;)
 	      else
 	      {
 	          error_log( date('Y-m-d H:i:s ')."[DAEMON] Invalid Daemon request\n", 3, $logfile);
-	          socket_write($client, json_encode(array('dummy'=>0,'error'=>"Invalid Daemon request",'result'=>"I expect 'GET TAGS' or 'KEEPALIVE' but not '$client_request'")));
+	          if ( $debug == 1 ) error_log( date('Y-m-d H:i:s ')."[DAEMON] Invalid request: $client_request \n", 3, $logfile);
+	          socket_write($client, json_encode(array('dummy'=>0,'error'=>"Invalid Daemon request",'result'=>"I expect 'GET TAGS', 'KEEPALIVE' or 'CREATE_DB' ")));
 	      }
 	      socket_close($client);
         if ( $debug == 1 ) error_log( date('Y-m-d H:i:s ')."[DAEMON] Socket closed\n", 3, $logfile);
