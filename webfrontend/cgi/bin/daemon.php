@@ -1,12 +1,13 @@
 <?php
 // LoxBerry BLE Scanner Plugin Daemon
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 0.30
-// 28.11.2017 23:49:15
+// Version 0.30.a
+// 29.11.2017 16:17:13
 
 // Configuration
 $ble_scan         = dirname(__FILE__)."/blescan.py";
 $psubdir          = basename(dirname(dirname(__FILE__)));
+$basedir          = dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))));
 $python           = "/usr/bin/python";
 $logfile          = dirname(__FILE__)."/../../../../../log/plugins/$psubdir/BLE-Scanner.log";
 $daemon_port      = 12345;
@@ -134,7 +135,9 @@ for (;;)
 	      else if (substr($client_request,0,9) == "CREATE_DB")
 	      {
 						$mysql_root_pw =  str_ireplace(array("'","/"), "", substr($client_request,10,-2));
-						$command = 'echo \'DROP DATABASE IF EXISTS `plugin_ble_scanner`; CREATE DATABASE IF NOT EXISTS `plugin_ble_scanner`; DROP USER "ble_scanner"@"%"; CREATE USER "ble_scanner"@"%" IDENTIFIED BY "ble_scanner"; GRANT USAGE ON `plugin\_ble\_scanner`.* TO "ble_scanner"@"%"; GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, DELETE, DROP, EVENT, INDEX, INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES  ON `plugin\_ble\_scanner`.* TO "ble_scanner"@"%" WITH GRANT OPTION; FLUSH PRIVILEGES; USE `plugin_ble_scanner`; CREATE TABLE IF NOT EXISTS `ble_scanner` ( `MAC` varchar(17) NOT NULL,  `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  `rssi` tinyint(4) NOT NULL DEFAULT "-128", PRIMARY KEY (`MAC`), UNIQUE KEY `MAC` (`MAC`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT="BLE Token Database"; DELETE FROM `ble_scanner`;\' |mysql -u root -p'.$mysql_root_pw.' 2>&1';
+						$command = 'echo \'DROP USER "ble_scanner"@"%";\' |mysql -u root -p'.$mysql_root_pw.' 2>&1';
+						$last_line =  exec("$command 2>&1",$result,$return_code);
+						$command = 'echo \'DROP DATABASE IF EXISTS `plugin_ble_scanner`; CREATE DATABASE IF NOT EXISTS `plugin_ble_scanner`; CREATE USER "ble_scanner"@"%" IDENTIFIED BY "ble_scanner"; GRANT USAGE ON `plugin\_ble\_scanner`.* TO "ble_scanner"@"%"; GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, DELETE, DROP, EVENT, INDEX, INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES  ON `plugin\_ble\_scanner`.* TO "ble_scanner"@"%" WITH GRANT OPTION; FLUSH PRIVILEGES; USE `plugin_ble_scanner`; CREATE TABLE IF NOT EXISTS `ble_scanner` ( `MAC` varchar(17) NOT NULL,  `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  `rssi` tinyint(4) NOT NULL DEFAULT "-128", PRIMARY KEY (`MAC`), UNIQUE KEY `MAC` (`MAC`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT="BLE Token Database"; DELETE FROM `ble_scanner`;\' |mysql -u root -p'.$mysql_root_pw.' 2>&1';
 	          if ( $debug == 1 ) error_log( date('Y-m-d H:i:s ')."[DAEMON] Create DB request with $command \n", 3, $logfile);
             $last_line =  exec("$command 2>&1",$result,$return_code);
             if ($return_code)
