@@ -88,7 +88,7 @@ our $loxberry_id;
 ##########################################################################
 
 # Version of this script
-$version = "0.17";
+$version = "0.30";
 
 
 # Figure out in which subfolder we are installed

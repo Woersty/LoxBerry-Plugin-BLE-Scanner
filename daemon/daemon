@@ -16,8 +16,8 @@ PATH=$PATH.":REPLACEBYBASEFOLDER/sbin"
 
 ### END INIT INFO
 
-# Version 0.19
-# 06.03.2017 21:20:14
+# Version 0.30
+# 29.11.2017 11:04:06
 
 case "${1:-''}" in
   'stop')
@@ -60,12 +60,6 @@ case "${1:-''}" in
             echo ':msg,contains,"bt_err_ratelimited:" ~'              >> /etc/rsyslog.d/99-BLE-Scanner.conf
             service rsyslog restart                                                                                          >>$logfile 2>&1
           fi
-          echo "`date` - Create link from ttyAMA0 to serial1... "                                                            >>$logfile 2>&1
-          echo 'KERNEL=="ttyAMA0",SYMLINK+="serial1" GROUP="dialout"' |tee /etc/udev/rules.d/99-REPLACEBYSUBFOLDER.rules     >>$logfile 2>&1
-          echo "`date` - Reload rules... "                                                                                   >>$logfile 2>&1
-          udevadm control --reload-rules                                                                                     >>$logfile 2>&1
-          echo "`date` - Trigger rules... "                                                                                  >>$logfile 2>&1
-          udevadm trigger                                                                                                    >>$logfile 2>&1
           echo "`date` - Restart Bluetooth... "                                                                              >>$logfile 2>&1
           systemctl stop  hciuart.service                                                                                    >>$logfile 2>&1
           systemctl start hciuart.service                                                                                    >>$logfile 2>&1
@@ -92,6 +86,31 @@ case "${1:-''}" in
           fi
           echo "`date` - Successful start of hciuart service"                                                                >>$logfile 2>&1
           systemctl status hciuart.service                                                                                   >>$logfile 2>&1
+          # Install MySQL-python
+          echo "`date` - Try to install MySQL-python from Internet (Timeout is long, sorry)..."                              >>$logfile 2>&1
+          /usr/bin/pip install MySQL-python --upgrade -v                                                                     >>$logfile 2>&1
+          if [ $? -eq 1 ]
+          then
+            echo "`date` - Error installing MySQL-python - trying fallback ..."                                              >>$logfile 2>&1
+
+              echo "`date` - Unzip plugin MySQL-python module"                                                               >>$logfile 2>&1
+              echo A|unzip REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-*.zip                                                >>$logfile 2>&1
+              if [ $? -eq 1 ]
+              then
+                echo "`date` - Error unzipping plugin MySQL-python module"                                                   >>$logfile 2>&1
+                log_failure_msg "Error unzipping plugin MySQL-python module"
+                exit 1
+              fi
+              echo "`date` - Installing plugin MySQL-python module"                                                          >>$logfile 2>&1
+              cd REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-*                                          >>$logfile 2>&1
+              /usr/bin/python ./setup.py install                                                                             >>$logfile 2>&1
+              if [ $? -eq 1 ]
+              then
+                echo "`date` - Error installing plugin MySQL-python module"                                                  >>$logfile 2>&1
+                log_failure_msg "Error installing plugin MySQL-python module"
+                exit 1
+              fi
+          fi
           # Start daemon
           log_action_msg "Try to start BLE-Scanner daemon"
           # Now start the daemon
@@ -142,7 +161,7 @@ case "${1:-''}" in
               exit 1
             fi
         else
-          echo "`date` - BLE-Scanner PHP-Daemon already running with PID `echo -n $output` - please use stop first"          >>$logfile 2>&1
+          echo "`date` - Error: BLE-Scanner PHP-Daemon already running with PID `echo -n $output` - please use stop first"   >>$logfile 2>&1
           log_failure_msg "BLE-Scanner PHP-Daemon already running with PID `echo -n $output` - please use stop first"
           exit 1
         fi

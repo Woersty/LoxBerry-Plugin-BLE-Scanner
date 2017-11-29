@@ -1,4 +1,5 @@
 									<div id="dialog"></div>
+									<div id="dialog_db"></div>
 									<link rel="stylesheet" href="/plugins/<!--$psubfolder-->/style.css">
 									<script src="/plugins/<!--$psubfolder-->/jquery-ui-1.9.2.custom.min.js"></script>
 									<center>
@@ -9,6 +10,54 @@
 													<script>
 														var at_least_one=0;
 														var firstrun=1;
+														function create_db()
+														{
+															  title = '<!--$MY_NAME--> - <!--$TXT_DIALOG_CREATE_DB_TITLE-->'
+														  	message = '<center><br/><table><tr><td><img src="/plugins/<!--$psubfolder-->/ico_create_db.png"></td><td><!--$TXT_CREATE_DB_ENTER_MYSQL_PW--><br/><INPUT id="id" value=""></td></tr></table><table><tr><td colspan=2><div id="create_db_result"></div></td></tr></table><br/></center>';
+																$('#dialog_db').html(message)
+																.prop('id','dialog_db')
+																.dialog(
+																{
+																	modal: true, title: title, zIndex: 10000, autoOpen: true,
+																	width: '900', height: '450', resizable: false,
+																	buttons:
+																	{
+																		"<!--$TXT_BTN_CREATE_DB-->": function ()
+																		{
+																			$("#create_db_result").html("<center><!--$TXT_PLEASE_WAIT--></center>");
+																			pw=$("#id").prop('value')
+																			$.getJSON('/plugins/<!--$psubfolder-->/?mode=init_db&id='+pw, function(data)
+																			{
+																				  TXT_DB_CREATE_RESULT="<!--$TXT_DB_CREATE_RESULT-->";
+																				  TXT_DB_CREATE_RESULT_ERROR="<!--$TXT_DB_CREATE_RESULT_ERROR-->";
+																				  TXT_DB_CREATE_OK="<!--$TXT_DB_CREATE_OK-->";
+																				  TXT_ERROR_READING_SQL_PW="<!--$TXT_ERROR_READING_SQL_PW-->";
+																					TXT_ERROR_NO_DAEMON="<!--$TXT_ERROR_NO_DAEMON-->";
+																					TXT_DB_CREATE_OK
+																					if ( data['result'] == "OK" )
+																					{
+																						data['result'] = "<!--$TXT_DB_CREATE_OK-->";
+																					}
+																					
+																					$("#create_db_result").html("<br/><center><nobr><b>"+eval(data['title'])+"</b><br/><br/>"+data['result']+"</nobr></center>");
+																			});
+																		},
+																		"<!--$TXT_BTN_CLOSE_DIALOG-->": function ()
+																		{
+																			$(this).dialog("close");
+																		}
+																	},
+																	close: function (event, ui)
+																	{
+																		$(this).hide();
+																	},
+																	open: function (event, ui)
+																	{
+																		$(this).show();
+																	}
+																});
+														
+														}
 														function delete_tag(tag_mac,tag_comment)
 														{
 															ConfirmDialog(tag_mac,'<br/><table><tr><td><img src="/plugins/<!--$psubfolder-->/ico_delete.png"></td><td><!--$TXT_DELETE_TAG--><br/><br/><center><b>"'+tag_comment+'"</b><br/><font face=Courier><small>'+tag_mac+'</small></font></center></td></tr></table><br/>','<!--$MY_NAME--> - <!--$TXT_DELETE_TAG_DIALOG_TITLE-->');
@@ -236,7 +285,7 @@
 													</style>
 													<table>
 														<tr>
-															<td>
+															<td colspan=2>
 																<a style="width:400px;" id="btnscan" data-icon="search" data-role="button" data-mini="true" onclick="reset_rssi(); var data=''; $('#btnscan').prop('innerHTML',svg_loader); $.getJSON('/plugins/<!--$psubfolder-->/?mode=scan',
 																function(data)
 																{
@@ -327,8 +376,14 @@
 																});
 																"><!--$TXT_UPDATE_STATUS_SEARCH_NEW--></a>
 															</td>
-															<td>
+														</tr>
+														</td>
+															<td align="center">
 																<a style="width:150px;" id="btnlog" data-icon="arrow-d" data-role="button" data-mini="true" target="log" href="/plugins/<!--$psubfolder-->/?mode=download_logfile"><!--$TXT_DOWNLOAD_LOGFILE--></a>
+																<a style="width:150px;" id="btnlog" data-icon="search" data-role="button" data-mini="true" target="log" href="/plugins/<!--$psubfolder-->/?mode=show_logfile"><!--$TXT_SHOW_LOGFILE--></a>
+															</td>
+															<td align="center">
+																<a style="width:150px;" id="btndb" data-icon="plus" data-role="button" data-mini="true" target="db" onclick="create_db();"><!--$TXT_CREATE_DB--></a>
 															</td>
 														</tr>
 													</table>
@@ -338,7 +393,7 @@
 									</center>
 									<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
 										<input type="hidden" name="saveformdata" value="1">
-										<input type="hidden" name="miniservers" value="<!--$miniservers-->">
+										<input type="hidden" name="miniservers"  value="<!--$miniservers-->">
 										<div class="form-group">
 											<table class="formtable" border="0" width="100%">
 												<tr>

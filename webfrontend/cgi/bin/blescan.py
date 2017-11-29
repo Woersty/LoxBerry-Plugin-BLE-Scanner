@@ -1,7 +1,7 @@
 # BLE iBeaconScanner git@loxberry.woerstenfeld.de
 # For LoxBerry BLE-Scanner
-# 27.11.2017 21:22:56
-# v0.25
+# v0.30
+# 29.11.2017 14:53:26
 # based on several other projects like
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
@@ -21,6 +21,7 @@ import struct
 import time
 import datetime
 import bluetooth._bluetooth as bluez
+import MySQLdb
 
 LE_META_EVENT = 0x3e
 LE_PUBLIC_ADDRESS=0x00
@@ -87,7 +88,7 @@ def hci_enable_le_scan(sock):
 			hci_toggle_le_scan(sock, 0x01)
     except:
 			sys.stdout = open(logfile, "a")
-			print "Phyton: " + str(datetime.datetime.now()) + ' Error: Start le_scan failed -> hci Interface up? Check with "hciconfig"'
+			print str(datetime.datetime.now()) + " [Python]" + ' Error: Start le_scan failed -> hci Interface up? Check with "hciconfig"'
 			sys.stdout = sys.__stdout__
 			print 'Error: Start le_scan failed -> hci Interface up? Check with "hciconfig"'
 			sys.exit(1)
@@ -113,7 +114,7 @@ def hexdump(src, length=16):
 			chars = src[c:c+length]
 			hex = ' '.join(["%02x" % ord(x) for x in chars])
 			printable = ''.join(["%s" % ((ord(x) <= 127 and FILTER[ord(x)]) or '.') for x in chars])
-			lines.append("%04x  %-*s  %s\n" % (c, length*3, hex, printable))
+			lines.append(str(datetime.datetime.now()) + " [Python] %04x  %-*s  %s\n" % (c, length*3, hex, printable))
 		return ''.join(lines)
 
 def parse_events(sock, loop_count=10):
@@ -138,9 +139,10 @@ def parse_events(sock, loop_count=10):
         except:
                 timeout_raised=1
                 pkt = ""
-                sys.stdout = open(logfile, "a")
-                print "Phyton: " + str(datetime.datetime.now()) + " Error: Timeout..."
-                sys.stdout = sys.__stdout__
+                if (DEBUG == True):
+                	sys.stdout = open(logfile, "a")
+                	print str(datetime.datetime.now()) + " [Python] Error: Timeout..."
+                	sys.stdout = sys.__stdout__
                 break
         ptype, event, plen = struct.unpack("BBB", pkt[:3])
         if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
@@ -158,18 +160,17 @@ def parse_events(sock, loop_count=10):
                 num_reports = struct.unpack("B", pkt[0])[0]
                 report_pkt_offset = 0
                 for i in range(0, num_reports):
-		
+				
 		    if (DEBUG == True):
                     	sys.stdout = open(logfile, "a")
-                    	print "Phyton: " + str(datetime.datetime.now()) + " -----------------------------------------\n" + hexdump( pkt )
-                    	print "MAC address: ", packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
+                    	print str(datetime.datetime.now()) + " [Python] -----------------------------------------\n" + hexdump( pkt )
+                    	print str(datetime.datetime.now()) + " [Python] MAC address: ", packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
                     	txpower, = struct.unpack("b", pkt[report_pkt_offset -2])
                     	rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
-                    	print "RSSI:", rssi 
-                    	print "Phyton: " + str(datetime.datetime.now()) + " -----------------------------------------" 
+                    	print str(datetime.datetime.now()) + " [Python] RSSI:", rssi 
                     	sys.stdout = sys.__stdout__
 		    # build the return string
-                    Adstring = packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
+		    Adstring = packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
 		    Adstring += ","
 		    Adstring += returnstringpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6]) 
 		    Adstring += ","
@@ -182,6 +183,24 @@ def parse_events(sock, loop_count=10):
 		    Adstring += "%i" % struct.unpack("b", pkt[report_pkt_offset -1])
 
  		    myFullList.append(Adstring)
+		    rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
+		    db = MySQLdb.connect("localhost","ble_scanner","ble_scanner","plugin_ble_scanner" )
+		    cursor = db.cursor()
+		    sql = "INSERT INTO ble_scanner(MAC,rssi) VALUES ('%s','%d') ON DUPLICATE KEY UPDATE rssi='%d' " % ( packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]), rssi, rssi ) 
+		    if (DEBUG == True):
+		    	sys.stdout = open(logfile, "a")
+		    	print str(datetime.datetime.now()) + " [Python] SQL:", sql
+		    	sys.stdout = sys.__stdout__
+		    try:
+		    	# Execute the SQL command
+		    	cursor.execute(sql)
+		    	# Commit your changes in the database
+		    	db.commit()
+		    	db.close()
+		    except:
+		    	# Rollback in case there is any error
+			    db.rollback()
+			    db.close()
                 done = True
     sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
     return myFullList
@@ -197,7 +216,7 @@ try:
 
 except:
 	sys.stdout = open(logfile , "a")
-	print "Phyton: " + str(datetime.datetime.now()) + " Error: Cannot access bluetooth device..."
+	print str(datetime.datetime.now()) + " [Python] Error: Cannot access bluetooth device..."
 	sys.stdout = sys.__stdout__
 	print " Error: Cannot access bluetooth device..."
     	sys.exit(1)
@@ -219,9 +238,10 @@ for beacon in returnedList:
 if len(mac_addr_list) > 0:
 	mac_addr_list.sort()
 	for beacon in mac_addr_list:
-		sys.stdout = open(logfile, "a")
- 		print "Phyton: " + str(datetime.datetime.now()) + " => " + beacon
-		sys.stdout = sys.__stdout__
+		if (DEBUG == True):
+			sys.stdout = open(logfile, "a")
+	 		print str(datetime.datetime.now()) + " [Python] => " + beacon
+			sys.stdout = sys.__stdout__
  		print(beacon)
 	sys.exit(0)	
 
@@ -241,15 +261,17 @@ for beacon in returnedList:
 if len(mac_addr_list) > 0:
 	mac_addr_list.sort()
 	for beacon in mac_addr_list:
-		sys.stdout = open(logfile, "a")
- 		print "Phyton: " + str(datetime.datetime.now()) + " => " + beacon
-		sys.stdout = sys.__stdout__
+		if (DEBUG == True):
+			sys.stdout = open(logfile, "a")
+	 		print str(datetime.datetime.now()) + " [Python] => " + beacon
+			sys.stdout = sys.__stdout__
  		print(beacon)
 	sys.exit(0)	
 else:
-	sys.stdout = open(logfile, "a")
-	print "Phyton: " + str(datetime.datetime.now()) + " Error: Nothing found after 2 scans, giving up..."
-	sys.stdout = sys.__stdout__
+	if (DEBUG == True):
+		sys.stdout = open(logfile, "a")
+		print str(datetime.datetime.now()) + " [Python] Error: Nothing found after 2 scans, giving up..."
+		sys.stdout = sys.__stdout__
 	print("Error: Nothing found after 2 scans, giving up...")
 
 sys.exit(0)	
