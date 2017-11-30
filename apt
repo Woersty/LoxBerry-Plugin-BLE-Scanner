@@ -1,2 +1,1 @@
-python bluez python-bluez
-raspberrypi-sys-mods pi-bluetooth
+python python-pip bluez python-bluez raspberrypi-sys-mods pi-bluetooth

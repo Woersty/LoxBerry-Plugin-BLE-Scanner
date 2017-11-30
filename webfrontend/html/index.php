@@ -1,8 +1,8 @@
 <?php
 // LoxBerry BLE Scanner Plugin
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 0.30
-// 29.11.2017 14:53:09
+// Version 0.30.a
+// 30.11.2017 22:29:46
 
 // Configuration parameters
 $psubdir          =array_pop(array_filter(explode("/",pathinfo($_SERVER["SCRIPT_FILENAME"],PATHINFO_DIRNAME))));
@@ -19,7 +19,7 @@ $daemon_port      ="12345";
 $loxberry_id			="";
 
 // Enable logging
-$debug                =0;
+$debug            = 0;
 ini_set("error_log",  $logfile);
 ini_set("log_errors", 1);
 
@@ -149,7 +149,6 @@ function convert_tag_format ($value)
 // Execute BLE-Scan
 if ( $debug == 1 ) error_log( date("Y-m-d H:i:s ")."[PHP] Open connection to Daemon [".$_SERVER["HTTP_REFERER"]."]\n", 3, $logfile);
 $client = stream_socket_client("tcp://$daemon_addr:$daemon_port", $errno, $errorMessage);
-stream_set_blocking ($client,false);
 if ($client === false)
 {
   error_log( date("Y-m-d H:i:s ")."[PHP] Error0002: reading tags from Daemon at tcp://$daemon_addr:$daemon_port! Reason:".$errorMessage."\n", 3, $logfile);
@@ -157,6 +156,7 @@ if ($client === false)
 }
 else
 {
+  stream_set_blocking ($client,false);
   if ( $debug == 1 ) error_log( date('Y-m-d H:i:s ')."[PHP] Socket sending GET TAGS\n", 3, $logfile);
   fwrite($client, "GET TAGS\n");
   #sleep(4)
@@ -247,7 +247,43 @@ else
 
 	if ( $debug == 1 ) error_log( date("Y-m-d H:i:s ")."[PHP] Reading general config [".$_SERVER["HTTP_REFERER"]."]\n", 3, $logfile);
   // Read general config
-  $ms_cfg_array = parse_ini_file($general_cfg_file, TRUE);
+	$config_file_handle   = fopen($general_cfg_file, "r");
+	if ($config_file_handle)
+	{
+		$section = "";
+	  while (!feof($config_file_handle))
+	  {
+	    $line_of_text = fgets($config_file_handle);
+	    if (strlen($line_of_text) > 3)
+	    {
+	    	if ( substr($line_of_text,0,1) == ";" )
+	    	{
+	    		// Ignore comments
+	      }
+	      else
+	      {
+	    		if  ( substr($line_of_text,0,1) == "[" )
+	    		{
+	    			preg_match('#\[(.*?)\]#', $line_of_text, $section);
+	    			$section=$section[1];
+	    		}
+	    		else
+	    		{
+			      $config_line = explode('=', $line_of_text);
+			      $config_line[1] = explode(';', $config_line[1])[0]; // Remove everything after ;
+			      $ms_cfg_array[$section][$config_line[0]]=preg_replace('/\r?\n|\r/','', $config_line[1]);
+	    		}
+	    	}
+	    }
+	  }
+	  fclose($config_file_handle);
+	}
+	else
+	{
+    error_log( date("Y-m-d H:i:s ")."[PHP] Error0002: Problem reading general config! [".$_SERVER["HTTP_REFERER"]."]\n", 3, $logfile);
+    die(json_encode(array("error"=>"Error reading general config!","result"=>"Cannot open general.cfg config file for reading.")));
+	}
+
   if (!$ms_cfg_array)
   {
     error_log( date("Y-m-d H:i:s ")."[PHP] Error0002: Problem reading general config! [".$_SERVER["HTTP_REFERER"]."]\n", 3, $logfile);
