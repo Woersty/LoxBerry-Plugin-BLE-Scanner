@@ -94,7 +94,8 @@ case "${1:-''}" in
             echo "`date` - Error installing MySQL-python - trying fallback ..."                                              >>$logfile 2>&1
 
               echo "`date` - Unzip plugin MySQL-python module"                                                               >>$logfile 2>&1
-              echo A|unzip REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-*.zip                                                >>$logfile 2>&1
+              cd REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/                                                        >>$logfile 2>&1
+              echo A|unzip REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-1.2.5.zip                        >>$logfile 2>&1
               if [ $? -eq 1 ]
               then
                 echo "`date` - Error unzipping plugin MySQL-python module"                                                   >>$logfile 2>&1
@@ -102,14 +103,15 @@ case "${1:-''}" in
                 exit 1
               fi
               echo "`date` - Installing plugin MySQL-python module"                                                          >>$logfile 2>&1
-              cd REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-*                                          >>$logfile 2>&1
-              /usr/bin/python ./setup.py install                                                                             >>$logfile 2>&1
+              cd REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-1.2.5                                      >>$logfile 2>&1
+              /usr/bin/python REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-1.2.5/setup.py install        >>$logfile 2>&1
               if [ $? -eq 1 ]
               then
                 echo "`date` - Error installing plugin MySQL-python module"                                                  >>$logfile 2>&1
                 log_failure_msg "Error installing plugin MySQL-python module"
                 exit 1
               fi
+              rm -rf REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-1.2.5                                  >>$logfile 2>&1
           fi
           # Start daemon
           log_action_msg "Try to start BLE-Scanner daemon"
