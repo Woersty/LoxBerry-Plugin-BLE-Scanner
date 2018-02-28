@@ -1,30 +1,27 @@
 #!/bin/sh
 
-# Bashscript which is executed by bash *AFTER* complete installation is done
-# (but *BEFORE* postupdate). Use with caution and remember, that all systems
-# may be different! Better to do this in your own Pluginscript if possible.
-#
-# Exit code must be 0 if executed successfull.
-#
-# Will be executed as user "loxberry".
-#
-# We add 5 arguments when executing the script:
-# command <TEMPFOLDER> <NAME> <FOLDER> <VERSION> <BASEFOLDER>
+# To use important variables from command line use the following code:
+COMMAND=$0    # Zero argument is shell command
+PTEMPDIR=$1   # First argument is temp folder during install
+PSHNAME=$2    # Second argument is Plugin-Name for scipts etc.
+PDIR=$3       # Third argument is Plugin installation folder
+PVERSION=$4   # Forth argument is Plugin version
+#LBHOMEDIR=$5 # Comes from /etc/environment now. Fifth argument is
+              # Base folder of LoxBerry
 
-ARGV2=$2 # Second argument is Plugin-Name for scipts etc.
-ARGV3=$3 # Third argument is Plugin installation folder
-ARGV5=$5 # Fifth argument is Base folder of LoxBerry
+# Combine them with /etc/environment
+PCGI=$LBPCGI/$PDIR
+PHTML=$LBPHTML/$PDIR
+PTEMPL=$LBPTEMPL/$PDIR
+PDATA=$LBPDATA/$PDIR
+PLOG=$LBPLOG/$PDIR # Note! This is stored on a Ramdisk now!
+PCONFIG=$LBPCONFIG/$PDIR
+PSBIN=$LBPSBIN/$PDIR
+PBIN=$LBPBIN/$PDIR
 
-/bin/sed -i "s#REPLACEBYSUBFOLDER#$ARGV3#"  $ARGV5/config/plugins/$ARGV3/ble_scanner.cfg
-/bin/sed -i "s#REPLACEBYSUBFOLDER#$ARGV3#"  $ARGV5/system/daemons/plugins/$ARGV2
-/bin/sed -i "s#REPLACEBYBASEFOLDER#$ARGV5#" $ARGV5/system/daemons/plugins/$ARGV2
-/bin/sed -i "s#REPLACEBYNAME#$ARGV2#"       $ARGV5/config/plugins/$ARGV3/ble_scanner.cfg
-/bin/sed -i "s#REPLACEBYSUBFOLDER#$ARGV3#"  $ARGV5/webfrontend/cgi/plugins/$ARGV3/bin/blescan.py
-/bin/sed -i "s#REPLACEBYBASEFOLDER#$ARGV5#" $ARGV5/webfrontend/cgi/plugins/$ARGV3/bin/blescan.py
-
-echo "<INFO> ***************************************************************"
-echo "<INFO> * Please reboot your LoxBerry to start the BLE-Scanner Daemon *"
-echo "<INFO> ***************************************************************"
-
+# Create log $PCONFIG/$PSHNAME.log
+mkdir $PLOG
+touch $PLOG/$PSHNAME.log
+chown loxberry:loxberry $PLOG/$PSHNAME.log
 # Exit with Status 0
 exit 0

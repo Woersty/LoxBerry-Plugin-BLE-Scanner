@@ -9,19 +9,23 @@
 # Description:       This file starts the Loxberry BLE-Scanner Plugin Daemon.
 ### END INIT INFO
 
-PATH="/sbin:/bin:/usr/sbin:/usr/bin:REPLACEBYBASEFOLDER/bin"
-PATH=$PATH.":REPLACEBYBASEFOLDER/sbin"
+PATH="/sbin:/bin:/usr/sbin:/usr/bin:REPLACELBHOMEDIR/bin"
+PATH=$PATH.":REPLACELBHOMEDIR/sbin"
 
 . /lib/lsb/init-functions
 
 ### END INIT INFO
 
-# Version 0.30
-# 29.11.2017 11:04:06
+# Version v2018.2.28
+# 28.02.2018 23:00:40
+
+logfile="REPLACELBPLOGDIR/BLE-Scanner.log"
+touch $logfile
+chown loxberry:loxberry $logfile
 
 case "${1:-''}" in
   'stop')
-        pkill -f "/usr/bin/php -f REPLACEBYBASEFOLDER/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php"
+        pkill -f "/usr/bin/php -f REPLACELBPHTMLAUTHDIR/bin/daemon.php"
         if [ $? -eq 1 ]
         then
           # Exit with Status 1
@@ -33,7 +37,7 @@ case "${1:-''}" in
         exit 0
         ;;
   'status')
-        output=$( pgrep -f "/usr/bin/php -f REPLACEBYBASEFOLDER/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php" )
+        output=$( pgrep -f "/usr/bin/php -f REPLACELBPHTMLAUTHDIR/bin/daemon.php" )
         if [ $? -eq 1 ]
         then
           log_action_msg "Not running"
@@ -43,8 +47,7 @@ case "${1:-''}" in
         exit 0
         ;;
     *)
-        logfile="REPLACEBYBASEFOLDER/log/plugins/REPLACEBYSUBFOLDER/BLE-Scanner.log"
-        output=$( pgrep -f "/usr/bin/php -f REPLACEBYBASEFOLDER/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php" )
+        output=$( pgrep -f "/usr/bin/php -f REPLACELBPHTMLAUTHDIR/bin/daemon.php" )
         if [ $? -eq 1 ]
         then
           if [ -r /etc/rsyslog.d/99-BLE-Scanner.conf ]
@@ -86,33 +89,6 @@ case "${1:-''}" in
           fi
           echo "`date` - Successful start of hciuart service"                                                                >>$logfile 2>&1
           systemctl status hciuart.service                                                                                   >>$logfile 2>&1
-          # Install MySQL-python
-          echo "`date` - Try to install MySQL-python from Internet (Timeout is long, sorry)..."                              >>$logfile 2>&1
-          /usr/bin/pip install MySQL-python --upgrade -v                                                                     >>$logfile 2>&1
-          if [ $? -eq 1 ]
-          then
-            echo "`date` - Error installing MySQL-python - trying fallback ..."                                              >>$logfile 2>&1
-
-              echo "`date` - Unzip plugin MySQL-python module"                                                               >>$logfile 2>&1
-              cd REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/                                                        >>$logfile 2>&1
-              echo A|unzip REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-1.2.5.zip                        >>$logfile 2>&1
-              if [ $? -eq 1 ]
-              then
-                echo "`date` - Error unzipping plugin MySQL-python module"                                                   >>$logfile 2>&1
-                log_failure_msg "Error unzipping plugin MySQL-python module"
-                exit 1
-              fi
-              echo "`date` - Installing plugin MySQL-python module"                                                          >>$logfile 2>&1
-              cd REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-1.2.5                                      >>$logfile 2>&1
-              /usr/bin/python REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-1.2.5/setup.py install        >>$logfile 2>&1
-              if [ $? -eq 1 ]
-              then
-                echo "`date` - Error installing plugin MySQL-python module"                                                  >>$logfile 2>&1
-                log_failure_msg "Error installing plugin MySQL-python module"
-                exit 1
-              fi
-              rm -rf REPLACEBYBASEFOLDER/data/plugins/REPLACEBYSUBFOLDER/MySQL-python-1.2.5                                  >>$logfile 2>&1
-          fi
           # Start daemon
           log_action_msg "Try to start BLE-Scanner daemon"
           # Now start the daemon
@@ -134,8 +110,8 @@ case "${1:-''}" in
               then
                 if [ -x /usr/bin/python ]
                 then
-                  output=$( /usr/bin/php -f REPLACEBYBASEFOLDER/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php >/dev/null 2>&1 & )
-                  output=$( pgrep -f "/usr/bin/php -f REPLACEBYBASEFOLDER/webfrontend/cgi/plugins/REPLACEBYSUBFOLDER/bin/daemon.php" )
+                  output=$( /usr/bin/php -f REPLACELBPHTMLAUTHDIR/bin/daemon.php >/dev/null 2>&1 & )
+                  output=$( pgrep -f "/usr/bin/php -f REPLACELBPHTMLAUTHDIR/bin/daemon.php" )
                   if [ $? -eq 1 ]
                   then
                     echo "`date` - BLE-Scanner Daemon NOT started"                                                           >>$logfile 2>&1

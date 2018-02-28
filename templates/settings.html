@@ -1,79 +1,40 @@
-									<div id="dialog"></div>
-									<div id="dialog_db"></div>
-									<link rel="stylesheet" href="/plugins/<!--$psubfolder-->/style.css">
-									<script src="/plugins/<!--$psubfolder-->/jquery-ui-1.9.2.custom.min.js"></script>
 									<center>
-										<img src="/system/images/icons/<!--$psubfolder-->/icon_64.png">
-										<table border=0 cellpadding=10>
-											<tr>
-												<td width="550px">
+										<img src="<TMPL_VAR LOGO_ICON>"><br>
+									</center>
+									<br>
+									<div id="notifblock">
+										<!-- NOTIFICATIONS //-->
+										<TMPL_VAR NOTIFICATIONS>
+										<!-- NOTIFICATIONS //-->
+									</div>
+									<center>
+									<b><TMPL_VAR GENERAL.HEADER_TEXT></b>
+									</center>
+									<div id="dialog"></div>
+									<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
+
+									<link rel="stylesheet" href="/plugins/<TMPL_VAR LBPPLUGINDIR>/style.css">
+									<script src="/plugins/<TMPL_VAR LBPPLUGINDIR>/jquery-ui-1.9.2.custom.min.js"></script>
+									<center>
 													<script>
 														var at_least_one=0;
 														var firstrun=1;
-														function create_db()
-														{
-															  title = '<!--$MY_NAME--> - <!--$TXT_DIALOG_CREATE_DB_TITLE-->'
-														  	message = '<center><br/><table><tr><td><img src="/plugins/<!--$psubfolder-->/ico_create_db.gif"></td><td><!--$TXT_CREATE_DB_ENTER_MYSQL_PW--><br/><INPUT id="id" value=""></td></tr></table><table><tr><td colspan=2><div id="create_db_result"></div></td></tr></table><br/></center>';
-																$('#dialog_db').html(message)
-																.prop('id','dialog_db')
-																.dialog(
-																{
-																	modal: true, title: title, zIndex: 10000, autoOpen: true,
-																	width: '900', height: '450', resizable: false,
-																	buttons:
-																	{
-																		"<!--$TXT_BTN_CREATE_DB-->": function ()
-																		{
-																			$("#create_db_result").html("<center><!--$TXT_PLEASE_WAIT--></center>");
-																			pw=$("#id").prop('value')
-																			$.getJSON('/plugins/<!--$psubfolder-->/?mode=init_db&id='+pw, function(data)
-																			{
-																				  TXT_DB_CREATE_RESULT="<!--$TXT_DB_CREATE_RESULT-->";
-																				  TXT_DB_CREATE_RESULT_ERROR="<!--$TXT_DB_CREATE_RESULT_ERROR-->";
-																				  TXT_DB_CREATE_OK="<!--$TXT_DB_CREATE_OK-->";
-																				  TXT_ERROR_READING_SQL_PW="<!--$TXT_ERROR_READING_SQL_PW-->";
-																					TXT_ERROR_NO_DAEMON="<!--$TXT_ERROR_NO_DAEMON-->";
-																					TXT_DB_CREATE_OK
-																					if ( data['result'] == "OK" )
-																					{
-																						data['result'] = "<!--$TXT_DB_CREATE_OK-->";
-																					}
-																					
-																					$("#create_db_result").html("<br/><center><nobr><b>"+eval(data['title'])+"</b><br/><br/>"+data['result']+"</nobr></center>");
-																			});
-																		},
-																		"<!--$TXT_BTN_CLOSE_DIALOG-->": function ()
-																		{
-																			$(this).dialog("close");
-																		}
-																	},
-																	close: function (event, ui)
-																	{
-																		$(this).hide();
-																	},
-																	open: function (event, ui)
-																	{
-																		$(this).show();
-																	}
-																});
-														
-														}
 														function delete_tag(tag_mac,tag_comment)
 														{
-															ConfirmDialog(tag_mac,'<br/><table><tr><td><img src="/plugins/<!--$psubfolder-->/ico_delete.png"></td><td><!--$TXT_DELETE_TAG--><br/><br/><center><b>"'+tag_comment+'"</b><br/><font face=Courier><small>'+tag_mac+'</small></font></center></td></tr></table><br/>','<!--$MY_NAME--> - <!--$TXT_DELETE_TAG_DIALOG_TITLE-->');
+															ConfirmDialog(tag_mac,'<br/><table><tr><td><img src="/plugins/<TMPL_VAR LBPPLUGINDIR>/ico_delete.png"></td><td><TMPL_VAR GENERAL.TXT_DELETE_TAG><br/><br/><center><b>"'+tag_comment+'"</b><br/><font face=Courier><small>'+tag_mac+'</small></font></center></td></tr></table><br/>','<TMPL_VAR GENERAL.MY_NAME> - <TMPL_VAR GENERAL.TXT_DELETE_TAG_DIALOG_TITLE>');
 														}
 														function refresh_strings()
 														{
 															var totalCheckboxes = $('input:checkbox').length;
 															if (totalCheckboxes === 0)
 															{
-																$('#configured_tags').html('<b><!--$TXT_NO_TAGS--><b>');
+																$('#configured_tags').html('<b><TMPL_VAR GENERAL.TXT_NO_TAGS><b>');
 																$('#mark_tag_hint').html('');
 															}
 															else
 															{
-																$('#configured_tags').html('<b><!--$TXT_BLUETOOTH_TAGS--><b>');
-																$('#mark_tag_hint').html('<!--$TXT_MARK_TAG_HINT-->');
+																$('#configured_tags').html('<b><TMPL_VAR GENERAL.TXT_BLUETOOTH_TAGS><b>');
+																$('#mark_tag_hint').html('<TMPL_VAR GENERAL.TXT_MARK_TAG_HINT>');
 															}
 														}
 														function ms_scripting(msdata)
@@ -100,13 +61,13 @@
 														{
 															$('.rssitag').each(function(i, obj) 
 															{
-																$(obj).attr('src', '/plugins/<!--$psubfolder-->/coverage_none.svg');
-																$(obj).prop('alt', '<!--$TXT_NO_SIGNAL-->');
-																$(obj).prop('title', '<!--$TXT_NO_SIGNAL-->');
+																$(obj).attr('src', '/plugins/<TMPL_VAR LBPPLUGINDIR>/coverage_none.svg');
+																$(obj).prop('alt', '<TMPL_VAR GENERAL.TXT_NO_SIGNAL>');
+																$(obj).prop('title', '<TMPL_VAR GENERAL.TXT_NO_SIGNAL>');
 															});
 															$('.ico_online').each(function(i, obj) 
 															{
-																$(obj).attr('src', '/plugins/<!--$psubfolder-->/ico_online0.svg');
+																$(obj).attr('src', '/plugins/<TMPL_VAR LBPPLUGINDIR>/ico_online0.svg');
 															});
 														}
 														function tag_rssi(valueID,rssi)
@@ -114,30 +75,30 @@
 															if (rssi < -80) 
 															{
 																level = 'weak';
-																str_level = '<!--$TXT_WEAK_SIGNAL--> ('+rssi+' dB)';
+																str_level = '<TMPL_VAR GENERAL.TXT_WEAK_SIGNAL> ('+rssi+' dB)';
 															}
 															else if (rssi >= -80 && rssi < -50 ) 
 															{
 																level = 'medium';
-																str_level = '<!--$TXT_GOOD_SIGNAL--> ('+rssi+' dB)';
+																str_level = '<TMPL_VAR GENERAL.TXT_GOOD_SIGNAL> ('+rssi+' dB)';
 															}
 															else if (rssi >= -50 ) 
 															{
 																level = 'strong';
-																str_level = '<!--$TXT_STRONG_SIGNAL--> ('+rssi+' dB)';
+																str_level = '<TMPL_VAR GENERAL.TXT_STRONG_SIGNAL> ('+rssi+' dB)';
 															}
 															else
 															{
 																level = 'none';
-																str_level = '<!--$TXT_NO_SIGNAL-->';
+																str_level = '<TMPL_VAR GENERAL.TXT_NO_SIGNAL>';
 															}
-															$('#rssi'+valueID).attr('src', '/plugins/<!--$psubfolder-->/coverage_'+level+'.svg');
+															$('#rssi'+valueID).attr('src', '/plugins/<TMPL_VAR LBPPLUGINDIR>/coverage_'+level+'.svg');
 															$('#rssi'+valueID).prop('alt', str_level);
 															$('#rssi'+valueID).prop('title', str_level);
 														}
 														function tag_scripting(valueID)
 														{
-															var new_tag_inputtext	='<!--$TXT_ENTER_TAG_NAME_HERE-->';
+															var new_tag_inputtext	='<TMPL_VAR GENERAL.TXT_ENTER_TAG_NAME_HERE>';
 															if (!$('#'+valueID).is(':checked'))
 															{
 																$('#'+valueID+'msdiv').fadeOut( 400 );
@@ -171,7 +132,7 @@
 																var rule = /^[0-9A-Za-z\-\_\s]+$/;
 																if(!rule.test($('#div'+valueID).text()) &&  $('#div'+valueID).html().length )
 																{
-																	$('#form-error-message').html('<!--$TXT_RULE_1-->');
+																	$('#form-error-message').html('<TMPL_VAR GENERAL.TXT_RULE_1>');
 																	$('#div'+valueID).text($('#div'+valueID).text().replace(/[^0-9A-Za-z\-\_\s]/g, ""));
 																	var offset = $('#div'+valueID).offset();
 																	$('#form-error-message').fadeIn(400);
@@ -200,13 +161,13 @@
 																	width: 'auto', resizable: false,
 																	buttons:
 																	{
-																		<!--$TXT_BTN_YES-->: function ()
+																		<TMPL_VAR GENERAL.TXT_BTN_YES>: function ()
 																		{
 																			$('#BLETAG'+tag_mac).empty();
 																			refresh_strings();
 																			$(this).dialog("close");
 																		},
-																		<!--$TXT_BTN_NO-->: function ()
+																		<TMPL_VAR GENERAL.TXT_BTN_NO>: function ()
 																		{
 																			$(this).dialog("close");
 																		}
@@ -223,15 +184,15 @@
 																.prop('id','dialog')
 																.dialog(
 																{
-																	modal: true, title: '<!--$MY_NAME--> - '+title, zIndex: 10000, autoOpen: true,
+																	modal: true, title: '<TMPL_VAR GENERAL.MY_NAME> - '+title, zIndex: 10000, autoOpen: true,
 																	width: 'auto', resizable: false,
 																	buttons:
 																	{
-																		<!--$TXT_PITY-->: function ()
+																		"<TMPL_VAR GENERAL.TXT_PITY>": function ()
 																		{
 																			$(this).dialog("close");
 																		},
-																		<!--$TXT_AGAIN-->: function ()
+																		"<TMPL_VAR GENERAL.TXT_AGAIN>": function ()
 																		{
 																			$('#btnscan').trigger('click');
 																			$(this).dialog("close");
@@ -243,7 +204,7 @@
 																	}
 																});
 														};
-														var svg_loader ="<div class='circle one'></div><div class='circle two'></div><div class='circle three'></div><!--$TXT_SEARCHING-->";
+														var svg_loader ="<div class='circle one'></div><div class='circle two'></div><div class='circle three'></div><TMPL_VAR GENERAL.TXT_SEARCHING>";
 													</script>
 													<style>
 														@keyframes circle
@@ -283,16 +244,13 @@
 															animation: circle 2s infinite linear;
 														}
 													</style>
-													<table>
-														<tr>
-															<td colspan=2>
-																<a style="width:400px;" id="btnscan" data-icon="search" data-role="button" data-mini="true" onclick="reset_rssi(); var data=''; $('#btnscan').prop('innerHTML',svg_loader); $.getJSON('/plugins/<!--$psubfolder-->/?mode=scan',
+																<a style="width:400px;" id="btnscan" data-icon="search" data-role="button" data-mini="true" onclick="reset_rssi(); var data=''; $('#btnscan').prop('innerHTML',svg_loader); $.getJSON('/plugins/<TMPL_VAR LBPPLUGINDIR>/?mode=scan',
 																function(data)
 																{
 																	if(typeof data['error'] !== 'undefined')
 																	{
-																		$('#btnscan').text( '<!--$TXT_UPDATE_STATUS_SEARCH_NEW-->' );
-																		Scan_no_results('<!--$TXT_DIALOG_SEARCH_ERROR-->','<table height=\'75px\'><tr><td valign=center><img src=\'/plugins/<!--$psubfolder-->/no_tags.png\'></td><td>&nbsp;</td><td valign=center align=center><br/><!--$TXT_DIALOG_ERROR_LOXBERRY--><br/><br/><font face=courier color=red><b>'+data['error']+'</b><br/>'+data['result']+'</font></td></tr></table>');
+																		$('#btnscan').text( '<TMPL_VAR GENERAL.TXT_UPDATE_STATUS_SEARCH_NEW>' );
+																		Scan_no_results('<TMPL_VAR GENERAL.TXT_DIALOG_SEARCH_ERROR>','<table height=\'75px\'><tr><td valign=center><img src=\'/plugins/<TMPL_VAR LBPPLUGINDIR>/no_tags.png\'></td><td>&nbsp;</td><td valign=center align=center><br/><TMPL_VAR GENERAL.TXT_DIALOG_ERROR_LOXBERRY><br/><br/><font face=courier color=red><b>'+data['error']+'</b><br/>'+data['result']+'</font></td></tr></table>');
 																	}
 																	else
 																	{
@@ -301,16 +259,16 @@
 																			if ( !$('#'+value['id'] ).length )
 																			{
 																				at_least_one=1;
-																				var new_tag_inputtext	='<!--$TXT_ENTER_TAG_NAME_HERE-->';
+																				var new_tag_inputtext	='<TMPL_VAR GENERAL.TXT_ENTER_TAG_NAME_HERE>';
 																				$( '<div id=\'BLETAG'+value['id']+'\'> 																																																																																																																																																																												      \
 																							<div id=\'wrap'+value['id']+'\'>                                                                                                                                                                                                                                                                                                                                                              \
 																								 <table>                                                                                                                                                                                                                                                                                                                                                                                    \
 																									<tr>                                                                                                                                                                                                                                                                                                                                                                                      \
 																										<td>    																																																																																																																																																																																					      \
-																											<img style=\' opacity: 0.3; filter: alpha(opacity=30);\' src=\'/plugins/<!--$psubfolder-->/ico_delete.png\' border=\'0\' width=\'48\' height=\'48\'></a>                                                                                                                                                                                                               					      \
+																											<img style=\' opacity: 0.3; filter: alpha(opacity=30);\' src=\'/plugins/<TMPL_VAR LBPPLUGINDIR>/ico_delete.png\' border=\'0\' width=\'48\' height=\'48\'></a>                                                                                                                                                                                                               					      \
 																										</td>                                                                                                                                                                                                                                                                                                                                                                                   \
 																										<td>    																																																																																																																																																																																					      \
-																											<img class=\'ico_online\' id=\''+value['id']+'found\' src=\'/plugins/<!--$psubfolder-->/ico_online'+value['found']+'.svg\' border=\'0\' width=\'48\' height=\'48\'>                                                                                                                                                                                                            	      \
+																											<img class=\'ico_online\' id=\''+value['id']+'found\' src=\'/plugins/<TMPL_VAR LBPPLUGINDIR>/ico_online'+value['found']+'.svg\' border=\'0\' width=\'48\' height=\'48\'>                                                                                                                                                                                                            	      \
 																										</td>                                                                                                                                                                                                                                                                                                                                                                                   \
 																										<td>                                                                                                                                                                                                                                                                                                                                                                                    \
 																											<input style=\'display:none\' id=\''+value['id']+'\'        name=\''+value['id']+'\' 			 type=\'checkbox\' data-cacheval=\'false\' unchecked mac=\''+value['id']+'\'>                                                                                                                                                                                                               \
@@ -331,7 +289,7 @@
 																																<td>																																																																																																																																																																																	      \
 																																	<small>                                                                                                                                                                                                                                                                                                                                                                   \
 																																		<font color=\'#1166FF\' face=\'courier\'>                                                                                                                                                                                                                                                                                                                					      \
-																																			<img tagid=\''+value['id']+'\' class=\'rssitag\' id=\'rssi'+value['id']+'\' title=\'<!--$TXT_NO_SIGNAL-->\' alt=\'<!--$TXT_NO_SIGNAL-->\' width=\'32px\' height=\'32px\'src=\'/plugins/<!--$psubfolder-->/signal.svg\'/>                                                                                                                                              \
+																																			<img tagid=\''+value['id']+'\' class=\'rssitag\' id=\'rssi'+value['id']+'\' title=\'<TMPL_VAR GENERAL.TXT_NO_SIGNAL>\' alt=\'<TMPL_VAR GENERAL.TXT_NO_SIGNAL>\' width=\'32px\' height=\'32px\'src=\'/plugins/<TMPL_VAR LBPPLUGINDIR>/signal.svg\'/>                                                                                                                                              \
 																																		</font>                                                                                                                                                                                                                                                                                                                                                                 \
 																																	</small>                                                                                                                                                                                                                                                                                                                                                                  \
 																																</td>                                                                                                                                                                                                                                                                                                                                                                       \
@@ -343,7 +301,7 @@
 																											<input id=\''+value['id']+'Hidden\'  name=\''+value['id']+'\' 			 type=\'hidden\'     value=\'off\'>                                                                                                                                                                                                                                                                               \
 																										</td>                                                                                                                                                                                                                                                                                                                                                                                   \
 																										<td>                                                                                                                                                                                                                                                                                                                                                                                    \
-																											<div style=\'  margin-left:5px; background: url(/plugins/<!--$psubfolder-->/info.svg); background-position: bottom right; background-repeat: no-repeat; border-radius: 20px 5px 20px 5px ;border: 1px dotted #6AB3F8;padding: 5px; vertical-align:middle; cursor:default; height: 43px; \'><nobr><font color=\'#6AB3F8\'><i><!--$TXT_SAVE_BEFORE_MS_CONFIG--></i></font></nobr></div> \
+																											<div style=\'  margin-left:5px; background: url(/plugins/<TMPL_VAR LBPPLUGINDIR>/info.svg); background-position: bottom right; background-repeat: no-repeat; border-radius: 20px 5px 20px 5px ;border: 1px dotted #6AB3F8;padding: 5px; vertical-align:middle; cursor:default; height: 43px; \'><nobr><font color=\'#6AB3F8\'><i><TMPL_VAR GENERAL.TXT_SAVE_BEFORE_MS_CONFIG></i></font></nobr></div> \
 																										</td>                                                                                                                                                                                                                                                                                                                                                                                   \
 																									</tr>                                                                                                                                                                                                                                                                                                                                                                                     \
 																								</table>                                                                                                                                                                                                                                                                                                                                                                                    \
@@ -355,7 +313,7 @@
 																			}
 																			else
 																			{
-																				$('#'+value['id']+'found').attr('src', '/plugins/<!--$psubfolder-->/ico_online'+value['found']+'.svg');
+																				$('#'+value['id']+'found').attr('src', '/plugins/<TMPL_VAR LBPPLUGINDIR>/ico_online'+value['found']+'.svg');
 																				tag_rssi(value['id'],value['rssi']);
 																			}
 																		});
@@ -363,37 +321,23 @@
 																		{
 																			if ( firstrun == 0 )
 																			{
-																				Scan_no_results('<!--$TXT_DIALOG_SEARCH_DONE-->','<table height=\'75px\'><tr><td><img src=\'/plugins/<!--$psubfolder-->/no_tags.png\'></td><td>&nbsp;</td><td valign=center><!--$TXT_DIALOG_NO_NEW_TAGS--></td></tr></table>');
+																				Scan_no_results('<TMPL_VAR GENERAL.TXT_DIALOG_SEARCH_DONE>','<table height=\'75px\'><tr><td><img src=\'/plugins/<TMPL_VAR LBPPLUGINDIR>/no_tags.png\'></td><td>&nbsp;</td><td valign=center><TMPL_VAR GENERAL.TXT_DIALOG_NO_NEW_TAGS></td></tr></table>');
 																			}
 																			else
 																			{
 																					firstrun = 0;
 																			}
 																		}
-																		$('#btnscan').text( '<!--$TXT_UPDATE_STATUS_SEARCH_NEW-->' );
+																		$('#btnscan').text( '<TMPL_VAR GENERAL.TXT_UPDATE_STATUS_SEARCH_NEW>' );
 																	}
 																	refresh_strings();
 																});
-																"><!--$TXT_UPDATE_STATUS_SEARCH_NEW--></a>
-															</td>
-														</tr>
-														</td>
-															<td align="center">
-																<a style="width:150px;" id="btnlog" data-icon="arrow-d" data-role="button" data-mini="true" target="log" href="/plugins/<!--$psubfolder-->/?mode=download_logfile"><!--$TXT_DOWNLOAD_LOGFILE--></a>
-																<a style="width:150px;" id="btnlog" data-icon="search" data-role="button" data-mini="true" target="log" href="/plugins/<!--$psubfolder-->/?mode=show_logfile"><!--$TXT_SHOW_LOGFILE--></a>
-															</td>
-															<td align="center">
-																<a style="width:150px;" id="btndb" data-icon="plus" data-role="button" data-mini="true" target="db" onclick="create_db();"><!--$TXT_CREATE_DB--></a>
-															</td>
-														</tr>
-													</table>
-												</td>
-											</tr>
-										</table>
+																"><TMPL_VAR GENERAL.TXT_UPDATE_STATUS_SEARCH_NEW></a>
+
 									</center>
-									<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
 										<input type="hidden" name="saveformdata" value="1">
-										<input type="hidden" name="miniservers"  value="<!--$miniservers-->">
+										<input type="hidden" name="VERSION" value="<TMPL_VAR VERSION>">
+										<input type="hidden" name="MINISERVERS"  value="<TMPL_VAR MINISERVERS>">
 										<div class="form-group">
 											<table class="formtable" border="0" width="100%">
 												<tr>
@@ -403,8 +347,61 @@
 													<td width="50%">
 														<div style="cursor:default; id="tag_div">
 															<fieldset id="tags">
-																<legend id="configured_tags"><B><!--$configured_tags--></B></legend>
-																<!--$tag_select-->
+																<legend id="configured_tags"></legend>
+																	<TMPL_LOOP NAME="TAGROW">
+																	<div id='BLETAG<TMPL_VAR TAG_MAC>'>
+																		<div id='wrap<TMPL_VAR TAG_MAC>'>
+																			 <table>
+																			 	<tr>
+																			 		<td>
+																			 			<a onclick="delete_tag('<TMPL_VAR TAG_MAC>',$('#comment<TMPL_VAR TAG_MAC>').val());" href='javascript:void(0);'><img src='/plugins/<TMPL_VAR LBPPLUGINDIR>/ico_delete.png' border='0' width='48' height='48'></a>
+																			 		</td>
+																			 		<td>
+																			 			<img class='ico_online' id='<TMPL_VAR TAG_MAC>found' src='/plugins/<TMPL_VAR LBPPLUGINDIR>/ico_online0.svg' border='0' width='48' height='48'>
+																			 		</td>
+																			 		<td>
+																		 				<input id='<TMPL_VAR TAG_MAC>'        name='<TMPL_VAR TAG_MAC>' 			 type='checkbox' <TMPL_VAR TAG_USE> mac='<TMPL_VAR TAG_MAC>'>
+																			 				<div class='ui-checkbox'>
+																			 					<label for='<TMPL_VAR TAG_MAC>' class='ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off'>
+																			 						<table>
+																			 							<tr>
+																			 								<td>
+																			 									<div data-validation='length alphanumeric' data-validation-length='1-32' data-validation-allowing='-_' class='editable' contenteditable='true' style='width:300px; padding:2px; border: 1px solid #7e7e7e; border-radius: 5px; color: #6DAC20; font-weight: bold; background-color: #e9e9e9; ' id='div<TMPL_VAR TAG_MAC>'><TMPL_VAR TAG_COMMENT></div>
+																			 								</td>
+																			 								<td>
+																			 									<small>
+																			 										<font color='#6DAC20' face='courier'>
+																			 											[<TMPL_VAR TAG_MAC>]
+																			 										</font>
+																			 									</small>
+																			 								</td>
+																			 								<td>
+																			 									<small>
+																			 										<font color='#6DAC20' face='courier'>
+																				 										<img tagid='<TMPL_VAR TAG_MAC>' class='rssitag' id='rssi<TMPL_VAR TAG_MAC>' title='<TMPL_VAR GENERAL.TXT_NO_SIGNAL>' alt='<TMPL_VAR GENERAL.TXT_NO_SIGNAL>' width='32px' height='32px' src='/plugins/<TMPL_VAR LBPPLUGINDIR>/coverage_none.svg' />
+																			 										</font>
+																			 								  <small>
+																			 								</td>
+																			 							</tr>
+																			 						</table>
+																			 					</label>
+																							</div>
+																			 			<input name='comment<TMPL_VAR TAG_MAC>' id='comment<TMPL_VAR TAG_MAC>' type='hidden' value='<TMPL_VAR TAG_COMMENT>'>
+																	 					<input id='<TMPL_VAR TAG_MAC>Hidden'  name='<TMPL_VAR TAG_MAC>' 			 type='hidden'     value='<TMPL_VAR TAG_USE_HIDDEN>'>
+																			 		</td>
+																		 			<td>
+																		 				<div id='<TMPL_VAR TAG_MAC>msdiv'><table><tr>
+																							<TMPL_LOOP NAME="MSROW">
+																								<td><label for="MS_<TMPL_VAR TAG_MAC><TMPL_VAR MS_NUMBER>"><nobr>#<TMPL_VAR MS_NUMBER> <small><small>[<TMPL_VAR MS_DISPLAY_NAME>]</small></small></nobr></label><input <TMPL_VAR MS_USED> name="MS_<TMPL_VAR TAG_MAC><TMPL_VAR MS_NUMBER>" type="checkbox" id="MS_<TMPL_VAR TAG_MAC><TMPL_VAR MS_NUMBER>"><input name="MS_<TMPL_VAR TAG_MAC><TMPL_VAR MS_NUMBER>" type="hidden" id="MS_<TMPL_VAR TAG_MAC><TMPL_VAR MS_NUMBER>Hidden" value="<TMPL_VAR MS_USED_HIDDEN>"><SCRIPT> ms_scripting('<TMPL_VAR TAG_MAC><TMPL_VAR MS_NUMBER>');</SCRIPT></td>
+																							</TMPL_LOOP>	 				
+																		 				</tr></table></div>
+																		 			</td>
+																			 	</tr>
+																			</table>
+																	 		 <script>tag_scripting('<TMPL_VAR TAG_MAC>','');</script>
+																		</div>
+																	</div>
+																	</TMPL_LOOP>
 															</fieldset>
 														</div>
 													</td>
@@ -417,7 +414,7 @@
 														&nbsp;
 													</td>
 													<td align="right" width="50%">
-														<span style="cursor:default;" width=100% align=right><i><small><font color="#808080"><span id="mark_tag_hint"><!--$TXT_MARK_TAG_HINT--></span></font></small><i></span>
+														<span style="cursor:default;" width=100% align=right><i><small><font color="#808080"><span id="mark_tag_hint"><TMPL_VAR GENERAL.TXT_MARK_TAG_HINT></span></font></small><i></span>
 													</td>
 													<td width="20%">
 														&nbsp;
@@ -429,16 +426,48 @@
 														<div id="form-error-message" class="form-error-message">&nbsp;</div>
 													</td>
 												</tr>
-												<tr><td width="20%">&nbsp;</td><td><table><tr><td><b><!--$TXT_LOXBERRY_ID--></b>&nbsp;</td><td><input type="text"   name="loxberry_id"  value="<!--$loxberry_id-->"></td></tr></table></td></tr>
+												<tr><td width="20%">&nbsp;</td><td><table><tr><td><b><TMPL_VAR GENERAL.TXT_LOXBERRY_ID></b>&nbsp;</td><td><input type="text"   name="LOXBERRY_ID"  value="<TMPL_VAR LOXBERRY_ID>"></td></tr></table></td></tr>
 											</table>
 										</div>
 									</form>
 									<p>
 										<center>
-											<a id="btncancel" data-role="button" data-inline="true" data-mini="true" data-icon="delete" href="/admin/index.cgi"><!--$TXT_CANCEL--></a>
-											<button type="submit" form="main_form" id="btnsubmit" data-role="button" data-inline="true" data-mini="true" data-icon="check"><!--$TXT_SAVE--></button>
+											<a id="btncancel" data-role="button" data-inline="true" data-mini="true" data-icon="delete" href="/admin/index.cgi"><TMPL_VAR GENERAL.TXT_CANCEL></a>
+											<button type="submit" form="main_form" id="btnsubmit" data-role="button" data-inline="true" data-mini="true" data-icon="check"><TMPL_VAR GENERAL.TXT_SAVE></button>
 										</center>
 									</p>
+									<center>
+										<div style="display:table;">
+											<div style="display:table-row;">
+												<div style="display:table-cell; ">
+													<div style="display:table; padding:10px; border: 1px solid black; border-radius: 5px; background-color: rgba(19,172,132,.2);">
+													<TMPL_VAR LOGGING.LOG_AREA> (<TMPL_VAR LOGLEVEL>)<br>
+												 		<div style="display:table-row;">
+															<div style="display:table-cell; border-radius: 5px;" id="delete_log_div">
+													 			<button id="delete_log_btn" onclick="$('#delete_log_div').css('background-color','yellow'); $('#delete_log_btn').html('<TMPL_VAR LOGGING.LOG_BUTTON_DELETE_WAIT>'); $.ajax({url: '', type: 'GET', data: { 'delete_log':1},
+														            success: function (data) {
+														                $('#delete_log_div').css('background-color','green');
+														                $('#delete_log_btn').html('<TMPL_VAR LOGGING.LOG_BUTTON_DELETE_OK>');
+														                setTimeout( function() { $('#delete_log_div').css('background-color',''); $('#delete_log_btn').html('<TMPL_VAR LOGGING.LOG_BUTTON_DELETE>'); }, 2000);
+														            },
+														            error: function (textStatus, errorThrown) {
+														                $('#delete_log_div').css('background-color','red');
+														                $('#delete_log_btn').html('<TMPL_VAR LOGGING.LOG_BUTTON_DELETE_FAIL>');
+														                setTimeout( function() { $('#delete_log_div').css('background-color',''); $('#delete_log_btn').html('<TMPL_VAR LOGGING.LOG_BUTTON_DELETE>');}, 2000);
+														
+														            }	}); return false;" data-role="button" data-inline="true" data-mini="true"><TMPL_VAR LOGGING.LOG_BUTTON_DELETE></button>
+													 			<button onclick="window.open('/admin/system/tools/logfile.cgi?logfile=<TMPL_VAR LOGFILE>&amp;header=html&amp;format=template', 'log'); return false;" id="logview" data-role="button" data-inline="true" data-mini="true"><TMPL_VAR LOGGING.LOG_BUTTON_VIEW></button>
+													 			<SCRIPT> 
+								 					 	 			$("label").css("text-align","left").css("margin-top","8px").css("margin-bottom","-8px").css("margin-left","0px");
+																</SCRIPT>
+															</div>
+												 		</div>
+													</div>
+											 	</div>
+										 	</div>
+									 	</div>
+									</center>
+									<small><small><TMPL_VAR VERSION></small></small>
 									<script>
 										var $messages = $('#form-error-message');
 										$messages.fadeOut(1);
@@ -452,3 +481,4 @@
 											$('#btnscan').trigger('click');
 										});
 									</script>
+

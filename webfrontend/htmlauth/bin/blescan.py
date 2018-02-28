@@ -1,7 +1,6 @@
 # BLE iBeaconScanner git@loxberry.woerstenfeld.de
 # For LoxBerry BLE-Scanner
-# v0.30
-# 29.11.2017 14:53:26
+# 28.02.2018 19:20:12
 # based on several other projects like
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # https://github.com/adamf/BLE/blob/master/ble-scanner.py
@@ -13,15 +12,13 @@
 # performs a simple device inquiry, and returns a list of ble advertizements 
 # discovered device + RSSI
 
-DEBUG = False
-
 import os
 import sys
 import struct
 import time
 import datetime
 import bluetooth._bluetooth as bluez
-import MySQLdb
+import sqlite3
 
 LE_META_EVENT = 0x3e
 LE_PUBLIC_ADDRESS=0x00
@@ -51,8 +48,22 @@ ADV_SCAN_RSP=0x04
 global pkt
 pkt = ""
 global logfile
-#logfile = "/opt/loxberry/log/plugins/ble_scanner/BLE-Scanner.log"
-logfile = "REPLACEBYBASEFOLDER/log/plugins/REPLACEBYSUBFOLDER/BLE-Scanner.log"
+
+try:
+	logfile = "REPLACELBPLOGDIR/BLE-Scanner.log" 
+	sys.stdout = open(logfile , "a")
+	sys.stdout = sys.__stdout__
+except:
+	sys.stdout = sys.__stdout__
+	print " [Python] <ERROR> " + ' Logfile not found: ' + logfile 
+	sys.exit(1)
+
+try:
+	file = open("/tmp/BLE-Scanner.loglevel", "r") 
+	LOGLEVEL = int(file.read())
+	file.close()
+except:
+	LOGLEVEL = 0
 
 def returnnumberpacket(pkt):
     myInteger = 0
@@ -88,7 +99,7 @@ def hci_enable_le_scan(sock):
 			hci_toggle_le_scan(sock, 0x01)
     except:
 			sys.stdout = open(logfile, "a")
-			print str(datetime.datetime.now()) + " [Python]" + ' Error: Start le_scan failed -> hci Interface up? Check with "hciconfig"'
+			print str(datetime.datetime.now()) + " [Python]" + ' <ERROR> Start le_scan failed -> hci Interface up? Check with "hciconfig"'
 			sys.stdout = sys.__stdout__
 			print 'Error: Start le_scan failed -> hci Interface up? Check with "hciconfig"'
 			sys.exit(1)
@@ -139,9 +150,9 @@ def parse_events(sock, loop_count=10):
         except:
                 timeout_raised=1
                 pkt = ""
-                if (DEBUG == True):
+                if (LOGLEVEL >= 4):
                 	sys.stdout = open(logfile, "a")
-                	print str(datetime.datetime.now()) + " [Python] Error: Timeout..."
+                	print str(datetime.datetime.now()) + " [Python] <WARNING> Timeout..."
                 	sys.stdout = sys.__stdout__
                 break
         ptype, event, plen = struct.unpack("BBB", pkt[:3])
@@ -161,7 +172,7 @@ def parse_events(sock, loop_count=10):
                 report_pkt_offset = 0
                 for i in range(0, num_reports):
 				
-		    if (DEBUG == True):
+		    if (LOGLEVEL >= 7):
                     	sys.stdout = open(logfile, "a")
                     	print str(datetime.datetime.now()) + " [Python] -----------------------------------------\n" + hexdump( pkt )
                     	print str(datetime.datetime.now()) + " [Python] MAC address: ", packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
@@ -184,23 +195,23 @@ def parse_events(sock, loop_count=10):
 
  		    myFullList.append(Adstring)
 		    rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
-		    db = MySQLdb.connect("localhost","ble_scanner","ble_scanner","plugin_ble_scanner" )
-		    cursor = db.cursor()
-		    sql = "INSERT INTO ble_scanner(MAC,rssi) VALUES ('%s','%d') ON DUPLICATE KEY UPDATE rssi='%d' " % ( packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]), rssi, rssi ) 
-		    if (DEBUG == True):
+		    conn = sqlite3.connect('/tmp/ble_scanner.dat')
+		    c = conn.cursor()
+		    sql = "REPLACE INTO `ble_scanner` (MAC,rssi,Timestamp) VALUES ('" + packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]) + "','" + str(rssi) + "',CURRENT_TIMESTAMP);"
+		    if (LOGLEVEL >= 6):
 		    	sys.stdout = open(logfile, "a")
-		    	print str(datetime.datetime.now()) + " [Python] SQL:", sql
+		    	print str(datetime.datetime.now()) + " [Python] <INFO> SQLite:", sql
 		    	sys.stdout = sys.__stdout__
 		    try:
-		    	# Execute the SQL command
-		    	cursor.execute(sql)
-		    	# Commit your changes in the database
-		    	db.commit()
-		    	db.close()
+		    	# Execute the SQLite command
+		    	c.execute(sql) 
+		    	# Commit changes in the database
+		    	conn.commit()
+		    	conn.close()
 		    except:
 		    	# Rollback in case there is any error
-			    db.rollback()
-			    db.close()
+			    conn.rollback()
+			    conn.close()
                 done = True
     sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
     return myFullList
@@ -238,7 +249,7 @@ for beacon in returnedList:
 if len(mac_addr_list) > 0:
 	mac_addr_list.sort()
 	for beacon in mac_addr_list:
-		if (DEBUG == True):
+		if (LOGLEVEL >= 7):
 			sys.stdout = open(logfile, "a")
 	 		print str(datetime.datetime.now()) + " [Python] => " + beacon
 			sys.stdout = sys.__stdout__
@@ -261,16 +272,16 @@ for beacon in returnedList:
 if len(mac_addr_list) > 0:
 	mac_addr_list.sort()
 	for beacon in mac_addr_list:
-		if (DEBUG == True):
+		if (LOGLEVEL >= 7):
 			sys.stdout = open(logfile, "a")
 	 		print str(datetime.datetime.now()) + " [Python] => " + beacon
 			sys.stdout = sys.__stdout__
  		print(beacon)
 	sys.exit(0)	
 else:
-	if (DEBUG == True):
+	if (LOGLEVEL >= 3):
 		sys.stdout = open(logfile, "a")
-		print str(datetime.datetime.now()) + " [Python] Error: Nothing found after 2 scans, giving up..."
+		print str(datetime.datetime.now()) + " [Python] <ERROR> Nothing found after 2 scans, giving up..."
 		sys.stdout = sys.__stdout__
 	print("Error: Nothing found after 2 scans, giving up...")
 
