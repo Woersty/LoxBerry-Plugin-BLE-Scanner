@@ -193,6 +193,7 @@ debug( date('Y-m-d H:i:s ')."[PHP] Entering main");
 
 if ($_REQUEST["mode"] == "scan")
 {
+  	$summary ="scan mode\n";
 	debug( "Mode: scan [".$_SERVER["HTTP_REFERER"]."]");
   // Go through all online Tags
   while(list($tags_found_tag_key,$tags_found_tag_data) = each($tags_found))
@@ -215,6 +216,7 @@ if ($_REQUEST["mode"] == "scan")
 }
 else
 {
+  	$summary ="normal mode\n";
 	debug( "Mode: normal [".$_SERVER["HTTP_REFERER"]."]");
 
   
@@ -312,19 +314,20 @@ else
                 else
                 {
                   debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): MS".$current_ms[0]." (".$ms[$current_ms[0]]['Name'].") Sent Data to Miniserver! http://xxx:xxx@".$LoxURL." [".$_SERVER["HTTP_REFERER"]."]", 5);
+				  $summary .= $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"].") => MS".$current_ms[0]." (".$ms[$current_ms[0]]['Name'].") => <a href='http://".$LoxURL."'>http://$LoxURL</a>\n";
                   fclose($LoxLink);
                 }
 				usleep(20000);
             }
             else
             {
-				  debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): MS".$current_ms[0]." (".$ms[$current_ms[0]]['Name'].") is NOT checked to be used with this tag. Ignoring it. [".$_SERVER["HTTP_REFERER"]."]",6);
+				debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): MS".$current_ms[0]." (".$ms[$current_ms[0]]['Name'].") is NOT checked to be used with this tag. Ignoring it. [".$_SERVER["HTTP_REFERER"]."]",6);
             }
           }
         }
         else
         {
-					debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): NOT checked to use it - ignoring it [".$_SERVER["HTTP_REFERER"]."]",5);
+				debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): NOT checked to use it - ignoring it [".$_SERVER["HTTP_REFERER"]."]",5);
         }
       }
     }
@@ -346,4 +349,4 @@ else
 }
 echo json_encode(array_values($json_return));
 $runtime = microtime(true) - $start;
-debug("Exit normally. The plugin was executed in " . $runtime . " seconds (including sleeps).",5);
+debug("Exit normally the ".$summary." The plugin was executed in " . $runtime . " seconds (including sleeps).",5);
