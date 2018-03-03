@@ -231,10 +231,10 @@ else
   natcasesort($plugin_cfg_array);
   foreach($plugin_cfg_array as $line)
   {
+    if ( $line == "\n" ) continue;
     // Add the line to configured_tags-Array, if the value starts with "TAG"
     $line = str_replace('"', '', $line);
 	$debug_cfg .= $line;
-	$configured_tags[]=$line;
     if (substr($line,0,3) == "TAG")
     {
       $configured_tags[]=$line;
