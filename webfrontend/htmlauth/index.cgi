@@ -98,6 +98,7 @@ if ( $R::delete_log )
 	system("/usr/bin/date > $logfile");
 	$log->open;
 	LOGSTART "Logfile restarted.";
+	LOGOK "Version: ".$version;
 	print "Content-Type: text/plain\n\nOK";
 	exit;
 }

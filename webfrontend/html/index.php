@@ -1,8 +1,6 @@
 <?php
 // LoxBerry BLE Scanner Plugin
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-// Version 2018.2.28
-// 28.02.2018 23:04:41
 
 // Error Reporting 
 error_reporting(~E_ALL & ~E_STRICT);     // Alle Fehler reporten (Außer E_STRICT)
@@ -72,6 +70,7 @@ function debug($message = "", $loglevel = 7)
 	return;
 }
 
+debug( "Version:".LBSystem::pluginversion(),5);
 
 // Defaults for inexistent variables
 if (!isset($_REQUEST["mode"])) {$_REQUEST["mode"] = "normal";}
