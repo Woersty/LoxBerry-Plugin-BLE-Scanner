@@ -227,19 +227,23 @@ else
   }
 
   // Parse plugin config
+  $debug_cfg = "";
   foreach($plugin_cfg_array as $line)
   {
     // Add the line to configured_tags-Array, if the value starts with "TAG"
     $line = str_replace('"', '', $line);
+	$debug_cfg .= $line;
+	$configured_tags[]=$line;
     if (substr($line,0,3) == "TAG")
     {
       $configured_tags[]=$line;
     }
-		elseif (substr($line,0,11) == "LOXBERRY_ID")
-		{
-			$loxberry_id = substr($line,12);
-		}
+	elseif (substr($line,0,11) == "LOXBERRY_ID")
+	{
+		$loxberry_id = substr($line,12);
+	}
   }
+   debug( "Config read from ".$plugin_cfg_file.":\n".$debug_cfg, 7); 
 
   // No Line breaks
   $loxberry_id = preg_replace("/\r|\n/", "", $loxberry_id);
