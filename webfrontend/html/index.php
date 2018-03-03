@@ -311,6 +311,7 @@ else
                   debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): MS".$current_ms[0]." (".$ms[$current_ms[0]]['Name'].") Sent Data to Miniserver! http://xxx:xxx@".$LoxURL." [".$_SERVER["HTTP_REFERER"]."]", 5);
                   fclose($LoxLink);
                 }
+				usleep(20000);
             }
             else
             {
