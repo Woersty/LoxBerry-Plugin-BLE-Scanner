@@ -66,7 +66,7 @@ function debug($message = "", $loglevel = 7)
 		}
 		if ( $loglevel < 4 ) 
 		{
-		  #if ( isset($message) && $message != "" ) notify ( LBPPLUGINDIR, $L['CC.MY_NAME'], $message);
+		  #if ( isset($message) && $message != "" ) notify ( LBPPLUGINDIR, $L['BLE.MY_NAME'], $message);
 		}
 	}
 	return;
@@ -109,8 +109,17 @@ debug( "Open connection to Daemon [".$_SERVER["HTTP_REFERER"]."]", 5);
 $client = stream_socket_client("tcp://$daemon_addr:$daemon_port", $errno, $errorMessage);
 if ($client === false)
 {
-  debug( "Error0002: reading tags from Daemon at tcp://$daemon_addr:$daemon_port! Reason:".$errorMessage, 2);
-  die(json_encode(array("error"=>"Error0002: Problem reading tags from Daemon tcp://$daemon_addr:$daemon_port","result"=>"$errorMessage")));
+
+	if ( file_exists("/tmp/BLE-Scanner.daemon.pid") )
+	{
+	  debug( "Error0002: reading tags from Daemon at tcp://$daemon_addr:$daemon_port! Reason:".$errorMessage, 2);
+	  die(json_encode(array("error"=>"Error0002: Problem reading tags from Daemon tcp://$daemon_addr:$daemon_port","result"=>"$errorMessage")));
+	}
+	else
+	{
+	  debug( $L['ERRORS.DEAMON_NOT_YET_RUNNING'], 4);
+	  die(json_encode(array("error"=>$L['ERRORS.DEAMON_NOT_YET_RUNNING'],"result"=>$L['ERRORS.DEAMON_NOT_YET_RUNNING_SUGGESTION'])));
+	}
 }
 else
 {

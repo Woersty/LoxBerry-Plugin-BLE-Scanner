@@ -22,7 +22,7 @@ $valid						= 30; // Maximum time in seconds to keep a previously found Tag onli
 $max_wait_python  = 3;  // Maximum time in seconds to wait for first results after BLE scan start 
 file_put_contents("/tmp/BLE-Scanner.loglevel", 3);
 // Enable loglevel changes on the fly and in Python
-chmod("/tmp/BLE-Scanner.loglevel", 666);
+chmod("/tmp/BLE-Scanner.loglevel", 0660);
 chown("/tmp/BLE-Scanner.loglevel", "loxberry");
 chgrp("/tmp/BLE-Scanner.loglevel", "loxberry");
 
