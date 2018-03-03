@@ -1,7 +1,7 @@
 <?php
 // LoxBerry BLE Scanner Plugin
 // Christian Woerstenfeld - git@loxberry.woerstenfeld.de
-
+$start =  microtime(true);
 // Error Reporting 
 error_reporting(~E_ALL & ~E_STRICT);     // Alle Fehler reporten (Außer E_STRICT)
 ini_set("display_errors", false);        // Fehler nicht direkt via PHP ausgeben
@@ -23,15 +23,14 @@ $daemon_addr      ="127.0.0.1";
 $daemon_port      ="12345";
 $loxberry_id			="";
 
-
 $plugindata = LBSystem::plugindata();
 $plugin_cfg["LOGLEVEL"] = $plugindata['PLUGINDB_LOGLEVEL'];
 file_put_contents("/tmp/BLE-Scanner.loglevel", $plugin_cfg["LOGLEVEL"]);
 
-$datetime    = new DateTime;
+$callid = "CID:".time('U');
 function debug($message = "", $loglevel = 7)
 {
-	global $plugin_cfg,$L;
+	global $plugin_cfg,$L, $callid;
 	if ( intval($plugin_cfg["LOGLEVEL"]) >= intval($loglevel)  || $loglevel == 8 )
 	{
 		switch ($loglevel)
@@ -40,26 +39,26 @@ function debug($message = "", $loglevel = 7)
 		        // OFF
 		        break;
 		    case 1:
-		        error_log( strftime("%A") ." <ALERT> PHP: ".$message );
+		        error_log( "[$callid] <ALERT> PHP: ".$message );
 		        break;
 		    case 2:
-		        error_log( strftime("%A") ." <CRITICAL> PHP: ".$message );
+		        error_log( "[$callid] <CRITICAL> PHP: ".$message );
 		        break;
 		    case 3:
-		        error_log( strftime("%A") ." <ERROR> PHP: ".$message );
+		        error_log( "[$callid] <ERROR> PHP: ".$message );
 		        break;
 		    case 4:
-		        error_log( strftime("%A") ." <WARNING> PHP: ".$message );
+		        error_log( "[$callid] <WARNING> PHP: ".$message );
 		        break;
 		    case 5:
-		        error_log( strftime("%A") ." <OK> PHP: ".$message );
+		        error_log( "[$callid] <OK> PHP: ".$message );
 		        break;
 		    case 6:
-		        error_log( strftime("%A") ." <INFO> PHP: ".$message );
+		        error_log( "[$callid] <INFO> PHP: ".$message );
 		        break;
 		    case 7:
 		    default:
-		        error_log( strftime("%A") ." PHP: ".$message );
+		        error_log( "[$callid] <DEBUG> PHP: ".$message );
 		        break;
 		}
 		if ( $loglevel < 4 ) 
@@ -70,7 +69,7 @@ function debug($message = "", $loglevel = 7)
 	return;
 }
 
-debug( "Version:".LBSystem::pluginversion(),5);
+debug( "Version: ".LBSystem::pluginversion(),5);
 
 // Defaults for inexistent variables
 if (!isset($_REQUEST["mode"])) {$_REQUEST["mode"] = "normal";}
@@ -83,6 +82,7 @@ debug( "Reading Miniservers [".$_SERVER["HTTP_REFERER"]."]");
 $ms = LBSystem::get_miniservers();
 if (!is_array($ms)) 
 {
+	debug("The plugin runs ". microtime(true) - $start . " µs.",5);
 	die(json_encode(array("error"=>"Error0010: No Miniservers configured.","result"=>"-")));
 }
 
@@ -111,13 +111,15 @@ if ($client === false)
 
 	if ( file_exists("/tmp/BLE-Scanner.daemon.pid") )
 	{
-	  debug( "Error0002: reading tags from Daemon at tcp://$daemon_addr:$daemon_port! Reason:".$errorMessage, 2);
-	  die(json_encode(array("error"=>"Error0002: Problem reading tags from Daemon tcp://$daemon_addr:$daemon_port","result"=>"$errorMessage")));
+	  	debug( "Error0002: reading tags from Daemon at tcp://$daemon_addr:$daemon_port! Reason:".$errorMessage, 2);
+		debug("The plugin runs ". microtime(true) - $start . " µs.",5);
+	  	die(json_encode(array("error"=>"Error0002: Problem reading tags from Daemon tcp://$daemon_addr:$daemon_port","result"=>"$errorMessage")));
 	}
 	else
 	{
-	  debug( $L['ERRORS.DEAMON_NOT_YET_RUNNING'], 4);
-	  die(json_encode(array("error"=>$L['ERRORS.DEAMON_NOT_YET_RUNNING'],"result"=>$L['ERRORS.DEAMON_NOT_YET_RUNNING_SUGGESTION'])));
+	  	debug( $L['ERRORS.DEAMON_NOT_YET_RUNNING'], 4);
+		debug("The plugin runs ". microtime(true) - $start . " µs.",5);
+	  	die(json_encode(array("error"=>$L['ERRORS.DEAMON_NOT_YET_RUNNING'],"result"=>$L['ERRORS.DEAMON_NOT_YET_RUNNING_SUGGESTION'])));
 	}
 }
 else
@@ -125,7 +127,6 @@ else
   stream_set_blocking ($client,false);
   debug( date('Y-m-d H:i:s ')."[PHP] Socket sending GET TAGS");
   fwrite($client, "GET TAGS\n");
-  #sleep(4)
   $tags_scanned = "";
   $iterations = 0;
   while ( $tags_scanned == "" && $iterations < 3000 )
@@ -140,7 +141,8 @@ else
   if (!isset($tags_scanned) )
   {
     debug( "Error0099: ".$tags_scanned["error"]." ".$tags_scanned["result"], 4);
-  	exit;
+  	debug("The plugin runs ". microtime(true) - $start . " µs.",5);
+	exit;
   }
   array_splice($tags_scanned, 0, 1);
 }
@@ -149,7 +151,8 @@ else
 if (isset($tags_scanned["error"]) )
 {
   debug( "Error0003: ".$tags_scanned["error"]." ".$tags_scanned["result"], 3);
-	die(json_encode($tags_scanned));
+  debug("The plugin runs ". microtime(true) - $start . " µs.",5);
+  die(json_encode($tags_scanned));
 }
 // Tag-MACs all uppercase and sort
 if ( count($tags_scanned) > 0 )
@@ -222,6 +225,7 @@ else
   if (!$plugin_cfg_array)
   {
     debug( "Error0003: Problem reading plugin config! [".$_SERVER["HTTP_REFERER"]."]", 3);
+	debug("The plugin runs ". microtime(true) - $start . " µs.",5);
     die(json_encode(array("error"=>"Error reading plugin config!","result"=>"Cannot open plugin config file for reading.")));
   }
 
@@ -341,4 +345,5 @@ else
   debug( "Query: ".count($tags_known)." Tag(s) processed [".$_SERVER["HTTP_REFERER"]."]",6);
 }
 echo json_encode(array_values($json_return));
-
+$runtime = microtime(true) - $start;
+debug("Exit normally. The plugin was executed in " . $runtime . " seconds (including sleeps).",5);
