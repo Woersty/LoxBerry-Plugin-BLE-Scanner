@@ -228,6 +228,7 @@ else
 
   // Parse plugin config
   $debug_cfg = "";
+  natcasesort($plugin_cfg_array);
   foreach($plugin_cfg_array as $line)
   {
     // Add the line to configured_tags-Array, if the value starts with "TAG"
