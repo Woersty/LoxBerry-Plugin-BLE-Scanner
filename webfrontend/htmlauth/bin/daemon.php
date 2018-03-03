@@ -25,10 +25,10 @@ chmod("/tmp/BLE-Scanner.loglevel", 0660);
 chown("/tmp/BLE-Scanner.loglevel", "loxberry");
 chgrp("/tmp/BLE-Scanner.loglevel", "loxberry");
 
-$callid = "DAEMON-CORE:".time('U');
+$dcallid = "DAEMON-CORE:".time('U');
 function debug($message = "", $loglevel = 7)
 {
-	global $plugin_cfg,$L,$callid;
+	global $plugin_cfg,$L,$dcallid;
 	if ( intval($plugin_cfg["LOGLEVEL"]) >= intval($loglevel) )
 	{
 		switch ($loglevel)
@@ -37,26 +37,26 @@ function debug($message = "", $loglevel = 7)
 		        // OFF
 		        break;
 		    case 1:
-		        error_log( "[$callid] <ALERT> PHP-DAEMON: ".$message );
+		        error_log( "[$dcallid] <ALERT> PHP-DAEMON: ".$message );
 		        break;
 		    case 2:
-		        error_log( "[$callid] <CRITICAL> PHP-DAEMON: ".$message );
+		        error_log( "[$dcallid] <CRITICAL> PHP-DAEMON: ".$message );
 		        break;
 		    case 3:
-		        error_log( "[$callid] <ERROR> PHP-DAEMON: ".$message );
+		        error_log( "[$dcallid] <ERROR> PHP-DAEMON: ".$message );
 		        break;
 		    case 4:
-		        error_log( "[$callid] <WARNING> PHP-DAEMON: ".$message );
+		        error_log( "[$dcallid] <WARNING> PHP-DAEMON: ".$message );
 		        break;
 		    case 5:
-		        error_log( "[$callid] <OK> PHP-DAEMON: ".$message );
+		        error_log( "[$dcallid] <OK> PHP-DAEMON: ".$message );
 		        break;
 		    case 6:
-		        error_log( "[$callid] <INFO> PHP-DAEMON: ".$message );
+		        error_log( "[$dcallid] <INFO> PHP-DAEMON: ".$message );
 		        break;
 		    case 7:
 		    default:
-		        error_log( "[$callid] <DEBUG> PHP-DAEMON: ".$message );
+		        error_log( "[$dcallid] <DEBUG> PHP-DAEMON: ".$message );
 		        break;
 		}
 		if ( $loglevel < 4 ) 
@@ -66,7 +66,6 @@ function debug($message = "", $loglevel = 7)
 	}
 	return;
 }
-
 
 function in_array_r($search_for, $in_what)
 {
@@ -135,12 +134,6 @@ for (;;)
 							$tags_scanned='';
 							$unique_tags_scanned = array("Dummy");
 							$tosend='';
-							debug( "Start Python", 5);
-							shell_exec("$python $ble_scan > /dev/null 2>/dev/null &");
-							debug( "Python called, waiting $max_wait_python second(s)...");
-							sleep($max_wait_python);
-							debug( "Python finished after max waiting time $max_wait_python seconds", 5);
-							debug( "Reading Tags from Database which were online in the last $valid seconds.", 5);
 							debug( "Open DB $database ", 5);
 							$db = new SQLite3($database);
 							if(!$db)
@@ -149,6 +142,12 @@ for (;;)
 							}
 							$db->exec("CREATE TABLE IF NOT EXISTS ble_scanner (   MAC TEXT PRIMARY KEY,    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,   rssi TINYINT DEFAULT '-128')");
 							debug("Create table returns ".$db->lastErrorMsg());
+							debug( "Start Python", 5);
+							shell_exec("$python $ble_scan > /dev/null 2>/dev/null &");
+							debug( "Python called, waiting $max_wait_python second(s)...");
+							sleep($max_wait_python);
+							debug( "Python finished after max waiting time $max_wait_python seconds", 5);
+							debug( "Reading Tags from Database which were online in the last $valid seconds.", 5);
 							$ergebnis =  $db->query("SELECT `MAC`, `rssi`, `Timestamp` from ble_scanner where strftime('%s','now') - strftime('%s',`Timestamp`) < $valid ;");
 							if($ergebnis==FALSE)
 							{

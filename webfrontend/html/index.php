@@ -184,7 +184,7 @@ if ( count($tags_scanned) > 0 )
 }
 else
 {
-  debug( "Error0004: $tags_scanned", 3);
+  debug( "Error0004: No Tags found during scan ".serialize($tags_scanned), 7);
   $tags_scanned = [];
   $tags_found=[];
 }

@@ -20,7 +20,10 @@ NAME=BASH-DAEMON
 FILENAME=${LBPLOG}/${PACKAGE}/BLE-Scanner.log
 APPEND=1
 LOGSTART "BASH-DAEMON started"
-logfile=/dev/null
+touch ${LBPLOG}/${PACKAGE}/BLE-Scanner.log
+chown loxberry ${LBPLOG}/${PACKAGE}/BLE-Scanner.log
+chgrp loxberry ${LBPLOG}/${PACKAGE}/BLE-Scanner.log
+chmod 0660 ${LBPLOG}/${PACKAGE}/BLE-Scanner.log
 
 function debug 
 {
