@@ -139,7 +139,8 @@ for (;;)
 							shell_exec("$python $ble_scan > /dev/null 2>/dev/null &");
 							debug( "[DAEMON] Python called, waiting $max_wait_python second(s)...");
 							sleep($max_wait_python);
-							debug( "[DAEMON] Reading Tags from Database which were online in the last $valid seconds.");
+							debug( "[DAEMON] Python finished after max waiting time $max_wait_python seconds", 5);
+							debug( "[DAEMON] Reading Tags from Database which were online in the last $valid seconds.", 5);
 							debug( "[DAEMON] Open DB $database ", 5);
 							$db = new SQLite3($database);
 							if(!$db)

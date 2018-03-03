@@ -158,11 +158,12 @@ if ( count($tags_scanned) > 0 )
     $tags_found[$iterator]["mac"]  = $mac_rssi[0];
     if ( isset($mac_rssi[1]) )
     {
-    $tags_found[$iterator]["rssi"] = $mac_rssi[1];
+    	$tags_found[$iterator]["rssi"] = "-".abs($mac_rssi[1]);
+    	if ( $tags_found[$iterator]["rssi"] == "-0" ) $tags_found[$iterator]["rssi"] = "-255";
   	}
   	else
   	{
-    $tags_found[$iterator]["rssi"] = -255;
+    	$tags_found[$iterator]["rssi"] = "-255";
   	}
     $iterator++;
   }
@@ -236,7 +237,9 @@ else
   // No Spaces allowed, replace by underscores
   $loxberry_id = preg_replace("/\s+/", "_", $loxberry_id);
 
+    debug( "Found: ".serialize ($tags_found),7);
 	debug( "Processing configured tags [".$_SERVER["HTTP_REFERER"]."]");
+
   // Go through all configured Tags
   if (isset($configured_tags))
   {
@@ -250,12 +253,19 @@ else
         if (isset($tag_data_array[1]))              { $tags_known["TAG$current_tag"]["use"]     = trim($tag_data_array[1]); }
         if (isset($tag_data_array[2]))              { $tags_known["TAG$current_tag"]["ms_list"] = trim($tag_data_array[2]); }
         if (isset($tag_data_array[3]))              { $tags_known["TAG$current_tag"]["comment"] = trim($tag_data_array[3]); }
-        if (isset($tag_data_array[0]))              { $tags_known["TAG$current_tag"]["found"]    = intval(in_array_r($tag_data_array[0],$tags_found)); } else { $tags_known["TAG$current_tag"]["found"] = 0; }
-		debug( "Processing tag ".$tags_known["TAG$current_tag"]["id"]." [".$_SERVER["HTTP_REFERER"]."]");
+        if (isset($tag_data_array[0]))              
+        { 
+        	$tags_known["TAG$current_tag"]["found"]    = intval(in_array_r($tag_data_array[0],$tags_found)); 
+        } 
+        else 
+        { 
+        	$tags_known["TAG$current_tag"]["found"] = 0; 
+        }
+		debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): Found = ".$tags_known["TAG$current_tag"]["found"]." [".$_SERVER["HTTP_REFERER"]."]",5);
         // If Tag is checked, process it
         if ($tags_known["TAG".$current_tag]["use"] == "on")
         {
-		  debug( "Tag ".$tags_known["TAG$current_tag"]["id"]." is checked to use it - continue to process it [".$_SERVER["HTTP_REFERER"]."]");
+		  debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): Checked to use it - continue to process it [".$_SERVER["HTTP_REFERER"]."]",6);
           // Read Loxone Miniserver list into ms_array
           $ms_array = explode ("~",$tags_known["TAG".$current_tag]["ms_list"]);
 	       // Go through all Miniservers for this Tags
@@ -264,10 +274,9 @@ else
             // Split Miniserver from use-value
             $current_ms = explode ("^",strtoupper($ms_data));
             // If use-value is "ON" process Tag
-			debug( "Processing Tag ".$tags_known["TAG$current_tag"]["id"]." for MS ".$ms[$current_ms[0]]['Name']." [".$_SERVER["HTTP_REFERER"]."]",6);
-            if ( $current_ms[1] == "ON" )
+			if ( $current_ms[1] == "ON" )
             {
-				debug( "MS #".$current_ms[0]." (".$ms[$current_ms[0]]['Name'].") is checked to be used with ".$tags_known["TAG$current_tag"]["id"]." [".$_SERVER["HTTP_REFERER"]."]",6);
+				debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): MS".$current_ms[0]." (".$ms[$current_ms[0]]['Name'].") is checked to be used with this tag. [".$_SERVER["HTTP_REFERER"]."]",6);
                 // Read config data for this current Miniserver
                 // Check if Cloud or Local
 
@@ -281,25 +290,29 @@ else
                 $LoxLink = fopen("http://".$LoxCredentials."@".$LoxURL, "r");
                 if (!$LoxLink)
                 {
-                  debug( "Can not sent Data to Miniserver! Unable to open http://xxx:xxx@".$LoxURL." [".$_SERVER["HTTP_REFERER"]."]", 3);
+                  debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): MS".$current_ms[0]." (".$ms[$current_ms[0]]['Name'].") Can not sent Data to Miniserver! Unable to open http://xxx:xxx@".$LoxURL." [".$_SERVER["HTTP_REFERER"]."]", 3);
                 }
                 else
                 {
-                	debug( "Send to Miniserver: $LoxURL", 6);
+                  debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): MS".$current_ms[0]." (".$ms[$current_ms[0]]['Name'].") Sent Data to Miniserver! http://xxx:xxx@".$LoxURL." [".$_SERVER["HTTP_REFERER"]."]", 5);
                   fclose($LoxLink);
                 }
             }
             else
             {
-								debug( "MS #".$current_ms[0]." is NOT checked to be used with ".$tags_known["TAG$current_tag"]["id"].". Ignoring it... [".$_SERVER["HTTP_REFERER"]."]");
+				  debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): MS".$current_ms[0]." (".$ms[$current_ms[0]]['Name'].") is NOT checked to be used with this tag. Ignoring it. [".$_SERVER["HTTP_REFERER"]."]",6);
             }
           }
         }
         else
         {
-					debug( "Tag ".$tags_known["TAG$current_tag"]["id"]." is NOT checked to use it - ignoring it [".$_SERVER["HTTP_REFERER"]."]");
+					debug( $tags_known["TAG$current_tag"]["id"]." (".$tags_known["TAG$current_tag"]["comment"]."): NOT checked to use it - ignoring it [".$_SERVER["HTTP_REFERER"]."]",5);
         }
       }
+    }
+    else
+    {
+    	debug( "No configured tags [".$_SERVER["HTTP_REFERER"]."]",4);
     }
   $json_return = $tags_known;
 }
