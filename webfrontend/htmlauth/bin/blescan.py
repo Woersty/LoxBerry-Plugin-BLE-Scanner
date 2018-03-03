@@ -197,7 +197,7 @@ def parse_events(sock, loop_count=10):
 		    rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
 		    conn = sqlite3.connect('/tmp/ble_scanner.dat')
 		    c = conn.cursor()
-		    sql = "REPLACE INTO `ble_scanner` (MAC,rssi,Timestamp) VALUES ('" + packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]) + "','" + str(rssi) + "',CURRENT_TIMESTAMP);"
+		    sql = "REPLACE INTO `ble_scanner` (MAC,rssi,Timestamp) VALUES ('" + packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]) + "','" + "-" + str(abs(rssi)) + "',CURRENT_TIMESTAMP);"
 		    if (LOGLEVEL >= 6):
 		    	sys.stdout = open(logfile, "a")
 		    	print str(datetime.datetime.now()) + " [Python] <INFO> SQLite:", sql
