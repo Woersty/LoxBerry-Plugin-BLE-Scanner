@@ -82,8 +82,10 @@ debug( "Reading Miniservers [".$_SERVER["HTTP_REFERER"]."]");
 $ms = LBSystem::get_miniservers();
 if (!is_array($ms)) 
 {
-	debug("The plugin runs ". microtime(true) - $start . " µs.",5);
-	die(json_encode(array("error"=>"Error0010: No Miniservers configured.","result"=>"-")));
+	$runtime = microtime(true) - $start;
+	debug($L["ERRORS.ERR_0001_NO_MINISERVERS_CONFIGURED"],3);
+	debug("Exit with Error.\nThe plugin was executed in " . $runtime . " seconds.",3);
+	die(json_encode(array("error"=>$L["ERRORS.ERR_0001_NO_MINISERVERS_CONFIGURED"],"result"=>$L["ERRORS.ERR_0001_NO_MINISERVERS_CONFIGURED_SUGGESTION"])));
 }
 
 // Function for recursive Array search
@@ -111,22 +113,23 @@ if ($client === false)
 
 	if ( file_exists("/tmp/BLE-Scanner.daemon.pid") )
 	{
-	  	debug( "Error0002: reading tags from Daemon at tcp://$daemon_addr:$daemon_port! Reason:".$errorMessage, 2);
-		debug("The plugin runs ". microtime(true) - $start . " µs.",5);
-	  	die(json_encode(array("error"=>"Error0002: Problem reading tags from Daemon tcp://$daemon_addr:$daemon_port","result"=>"$errorMessage")));
+		$runtime = microtime(true) - $start;
+		debug($L["ERRORS.ERR_0002_DAEMON_NO_TAGS"]." @ tcp://$daemon_addr:$daemon_port => ".$errorMessage,2);
+		debug("Exit with Error.\nThe plugin was executed in " . $runtime . " seconds.",2);
+	  	die(json_encode(array("error"=>$L["ERRORS.ERR_0002_DAEMON_NO_TAGS"],"result"=>$L["ERRORS.ERR_0002_DAEMON_NO_TAGS_SUGGESTION"])));
 	}
 	else
 	{
-	  	debug( $L['ERRORS.DEAMON_NOT_YET_RUNNING'], 4);
-		debug("The plugin runs ". microtime(true) - $start . " µs.",5);
-	  	die(json_encode(array("error"=>$L['ERRORS.DEAMON_NOT_YET_RUNNING'],"result"=>$L['ERRORS.DEAMON_NOT_YET_RUNNING_SUGGESTION'])));
+	  	debug( $L['ERRORS.ERR_0003_DAEMON_NOT_YET_RUNNING'], 4);
+		debug("Exit with Warning.\nThe plugin was executed in " . $runtime . " seconds.",5);
+	  	die(json_encode(array("error"=>$L['ERRORS.ERR_0003_DAEMON_NOT_YET_RUNNING'],"result"=>$L['ERRORS.ERR_0003_DAEMON_NOT_YET_RUNNING_SUGGESTION'])));
 	}
 }
 else
 {
   stream_set_blocking ($client,false);
   debug( date('Y-m-d H:i:s ')."[PHP] Socket sending GET TAGS");
-  fwrite($client, "GET TAGS\n");
+  fwrite($client, "GET TAGS".$callid."\n");
   $tags_scanned = "";
   $iterations = 0;
   while ( $tags_scanned == "" && $iterations < 3000 )
