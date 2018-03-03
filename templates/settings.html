@@ -444,7 +444,7 @@
 													<TMPL_VAR LOGGING.LOG_AREA> (<TMPL_VAR LOGLEVEL>)<br>
 												 		<div style="display:table-row;">
 															<div style="display:table-cell; border-radius: 5px;" id="delete_log_div">
-													 			<button id="delete_log_btn" onclick="$('#delete_log_div').css('background-color','yellow'); $('#delete_log_btn').html('<TMPL_VAR LOGGING.LOG_BUTTON_DELETE_WAIT>'); $.ajax({url: '', type: 'GET', data: { 'delete_log':1},
+													 			<button id="delete_log_btn" onclick="$('#delete_log_div').css('background-color','yellow'); $('#delete_log_btn').html('<TMPL_VAR LOGGING.LOG_BUTTON_DELETE_WORKING>'); $.ajax({url: '', type: 'GET', data: { 'delete_log':1},
 														            success: function (data) {
 														                $('#delete_log_div').css('background-color','green');
 														                $('#delete_log_btn').html('<TMPL_VAR LOGGING.LOG_BUTTON_DELETE_OK>');
