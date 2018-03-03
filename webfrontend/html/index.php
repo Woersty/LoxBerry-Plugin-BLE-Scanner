@@ -114,13 +114,13 @@ if ($client === false)
 	if ( file_exists("/tmp/BLE-Scanner.daemon.pid") )
 	{
 		$runtime = microtime(true) - $start;
-		debug($L["ERRORS.ERR_0002_DAEMON_NO_TAGS"]." @ tcp://$daemon_addr:$daemon_port => ".$errorMessage,2);
+		debug($L["ERRORS.ERR_0002_DAEMON_NO_CONNECT"]." @ tcp://$daemon_addr:$daemon_port => ".$errorMessage,2);
 		debug("Exit with Error.\nThe plugin was executed in " . $runtime . " seconds.",2);
-	  	die(json_encode(array("error"=>$L["ERRORS.ERR_0002_DAEMON_NO_TAGS"],"result"=>$L["ERRORS.ERR_0002_DAEMON_NO_TAGS_SUGGESTION"])));
+	  	die(json_encode(array("error"=>$L["ERRORS.ERR_0002_DAEMON_NO_CONNECT"],"result"=>$L["ERRORS.ERR_CHK_LOG_SUGGESTION"])));
 	}
 	else
 	{
-	  	debug( $L['ERRORS.ERR_0003_DAEMON_NOT_YET_RUNNING'], 4);
+	  	debug($L['ERRORS.ERR_0003_DAEMON_NOT_YET_RUNNING'], 4);
 		debug("Exit with Warning.\nThe plugin was executed in " . $runtime . " seconds.",5);
 	  	die(json_encode(array("error"=>$L['ERRORS.ERR_0003_DAEMON_NOT_YET_RUNNING'],"result"=>$L['ERRORS.ERR_0003_DAEMON_NOT_YET_RUNNING_SUGGESTION'])));
 	}
@@ -128,7 +128,7 @@ if ($client === false)
 else
 {
   stream_set_blocking ($client,false);
-  debug( date('Y-m-d H:i:s ')."[PHP] Socket sending GET TAGS");
+  debug("Sending GET TAGS to daemon");
   fwrite($client, "GET TAGS".$callid."\n");
   $tags_scanned = "";
   $iterations = 0;
@@ -139,13 +139,13 @@ else
 		usleep(10000); 
   }
   fclose($client);
-  debug( date('Y-m-d H:i:s ')."[PHP] Socket closed after $iterations iterations");
-  debug( date('Y-m-d H:i:s ')."[PHP] Have read from Daemon: ".implode(" ",$tags_scanned), 6);
+  debug( "Socket closed after $iterations iterations");
+  debug( "Have read from Daemon: ".implode(" ",$tags_scanned), 6);
   if (!isset($tags_scanned) )
   {
-    debug( "Error0099: ".$tags_scanned["error"]." ".$tags_scanned["result"], 4);
+  	debug($L['ERRORS.ERR_0004_NO_TAGS_FROM_DAEMON'], 3);
   	debug("The plugin runs ". microtime(true) - $start . " µs.",5);
-	exit;
+  	die(json_encode(array("error"=>$L["ERRORS.ERR_0004_NO_TAGS_FROM_DAEMON"],"result"=>$L["ERRORS.ERR_CHK_LOG_SUGGESTION"])));
   }
   array_splice($tags_scanned, 0, 1);
 }
@@ -153,14 +153,14 @@ else
 // If result contain error, abort
 if (isset($tags_scanned["error"]) )
 {
-  debug( "Error0003: ".$tags_scanned["error"]." ".$tags_scanned["result"], 3);
+  debug( $tags_scanned["error"]." ".$tags_scanned["result"], 3);
   debug("The plugin runs ". microtime(true) - $start . " µs.",5);
   die(json_encode($tags_scanned));
 }
 // Tag-MACs all uppercase and sort
 if ( count($tags_scanned) > 0 )
 {
-  debug( "OK: ".serialize($tags_scanned), 5);
+  debug( "Tag found: ".implode(" ",$tags_scanned), 7);
   $tags_scanned = array_map("strtoupper", array_unique($tags_scanned,SORT_STRING));
   // Tag-MACs add prefix
   $tags_scanned= array_map("convert_tag_format", $tags_scanned);
@@ -184,7 +184,7 @@ if ( count($tags_scanned) > 0 )
 }
 else
 {
-  debug( "Error0004: No Tags found during scan ".serialize($tags_scanned), 7);
+  debug( "Error0004: No Tags found during scan ".implode(" ",$tags_scanned), 7);
   $tags_scanned = [];
   $tags_found=[];
 }
