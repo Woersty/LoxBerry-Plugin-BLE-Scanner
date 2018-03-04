@@ -151,10 +151,17 @@ $plugin_cfg 		= Config::Simple->import_from($lbpconfigdir . "/" . $pluginconfigf
 my %miniservers;
 %miniservers = LoxBerry::System::get_miniservers();
   
-if (! %miniservers) {
-LOGWARN "No miniservers found";
+if (! %miniservers) 
+{
+	$error_message = $ERR{'ERRORS.ERR_0007_MS_CONFIG_NO_IP'}."<br>".$ERR{'ERRORS.ERR_0007_MS_CONFIG_NO_IP_SUGGESTION'};
+	&error;
 }
- 
+else
+{
+	$error_message = $ERR{'ERRORS.ERR_0007_MS_CONFIG_NO_IP'}."<br>".$ERR{'ERRORS.ERR_0007_MS_CONFIG_NO_IP_SUGGESTION'};
+	&error if ( $miniservers{1}{IPAddress} eq "" );
+	$error_message = "";
+}
   
 # Get through all the config options
 foreach (sort keys %Config) 
@@ -342,6 +349,7 @@ exit;
 		$ms{MS_NUMBER}        = $ms_id;
 		$ms{MS_USED}          = $tag{TAG_USE}; # Default value from Tag-Checkbox 
 		$ms{MS_DISPLAY_NAME}  = $miniservers{$ms_id}{Name};
+		LOGERR "MS".$ms{MS_NUMBER}." ".$ms{MS_DISPLAY_NAME}." ".$ERR{'ERRORS.ERR_0007_MS_CONFIG_NO_IP'}."<br>".$ERR{'ERRORS.ERR_0007_MS_CONFIG_NO_IP_SUGGESTION'} if ( $miniservers{$ms_id}{IPAddress} eq "" );
 		$ms{MS_USED_HIDDEN}   = $ms{MS_USED};
 				if (defined($known_tags[$tag_id]->[2]))
 				{

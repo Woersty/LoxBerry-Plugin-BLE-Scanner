@@ -303,6 +303,7 @@ else
                 // Check if Cloud or Local
 
                   $LoxHost            =$ms[$current_ms[0]]['IPAddress'];
+                  if ( $LoxHost == "" ) debug( "MS".$current_ms[0]." ".$ms[$current_ms[0]]['Name']. $L["ERRORS.ERR_0007_MS_CONFIG_NO_IP"]." ".$L["ERRORS.ERR_0007_MS_CONFIG_NO_IP_SUGGESTION"],3);
                   $LoxPort            =$ms[$current_ms[0]]['Port'];
 	              $LoxCredentials     =$ms[$current_ms[0]]['Credentials'];
 
