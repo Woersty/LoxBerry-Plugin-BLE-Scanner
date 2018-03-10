@@ -90,6 +90,9 @@ $LoxBerry::Web::DEBUG 		= 1 if $plugin->{PLUGINDB_LOGLEVEL} eq 7;
 $log->loglevel($plugin->{PLUGINDB_LOGLEVEL});
 
 LOGDEB "Init CGI and import names in namespace R::";
+$R::delete_log if (0);
+$R::do if (0);
+$R::LOXBERRY_ID if (0);
 
 if ( $R::delete_log )
 {
