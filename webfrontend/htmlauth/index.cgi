@@ -207,6 +207,7 @@ $maintemplate->param( "MINISERVERS"	, int( keys(%miniservers)) );
 $maintemplate->param( "LOGO_ICON"	, get_plugin_icon(64) );
 $maintemplate->param( "VERSION"		, $version);
 $maintemplate->param( "LOGLEVEL" 	, $L{"LOGGING.LOGLEVEL".$plugin->{PLUGINDB_LOGLEVEL}});
+$maintemplate->param( "LOGLEVEL" 	, "?" ) if ( $plugin->{PLUGINDB_LOGLEVEL} eq "" );
 $lbplogdir =~ s/$lbhomedir\/log\///; # Workaround due to missing variable for Logview
 $maintemplate->param( "LOGFILE" 	, $lbplogdir ."/". $logfile);
 	
