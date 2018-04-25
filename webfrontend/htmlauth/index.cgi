@@ -88,6 +88,7 @@ LOGSTART "New admin call."      if $plugin->{PLUGINDB_LOGLEVEL} eq 7;
 $LoxBerry::System::DEBUG 	= 1 if $plugin->{PLUGINDB_LOGLEVEL} eq 7;
 $LoxBerry::Web::DEBUG 		= 1 if $plugin->{PLUGINDB_LOGLEVEL} eq 7;
 $log->loglevel($plugin->{PLUGINDB_LOGLEVEL});
+LOGWARN "Cannot read loglevel from Plugin Database" if ( $plugin->{PLUGINDB_LOGLEVEL} eq "" );
 
 LOGDEB "Init CGI and import names in namespace R::";
 $R::delete_log if (0);
